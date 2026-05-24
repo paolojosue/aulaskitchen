@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula's Kitchen POS - Menu Manager</title>
+    <style>
+        :root {
+            --bg-principal: #f8f9fa;
+            --tarjeta-bg: #ffffff;
+            --texto: #2d3748;
+            --primario: #47a973;
+            --primario-hover: #388a5c;
+            --borde: #e2e8f0;
+            --gris-claro: #edf2f7;
+            --peligro: #e53e3e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: var(--bg-principal);
+            color: var(--texto);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 220px 1fr 380px;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 1. SIDEBAR CATEGORÍAS */
+        .sidebar-categorias {
+            background-color: #ffffff;
+            border-right: 1px solid var(--borde);
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .lista-botones-cat {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-categorias h3 {
+            margin: 0 0 10px 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a0aec0;
+        }
+
+        .btn-categoria {
+            background: transparent;
+            color: var(--texto);
+            border: none;
+            padding: 14px 15px;
+            border-radius: 10px;
+            font-weight: 700; 
+            font-size: 18px;  /* Letras grandes para las categorías */
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-categoria:hover { background: var(--bg-principal); }
+        .btn-categoria.activo { background: var(--primario); color: white; box-shadow: 0 4px 6px rgba(71, 169, 115, 0.15); }
+
+        .btn-ajustes {
+            background: var(--gris-claro);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+            font-size: 14px;
+        }
+        .btn-ajustes:hover { background: #cbd5e0; }
+
+        /* 2. SECCIÓN PRODUCTOS */
+        .menu-section { padding: 25px; overflow-y: auto; display: flex; flex-direction: column; }
+        .header-menu h1 { margin: 0 0 20px 0; font-size: 26px; color: #1a202c; }
+        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+
+        .tarjeta-producto {
+            background: var(--tarjeta-bg); border-radius: 12px; padding: 20px; text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--borde);
+            cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column;
+            align-items: center; justify-content: space-between;
+        }
+
+        .tarjeta-producto:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: var(--primario); }
+        
+        .tarjeta-producto .emoji-icono {
+            font-size: 35px; margin-bottom: 12px; background: #edf7ed; border-radius: 50%;
+            width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;
+        }
+
+        .tarjeta-producto .nombre { 
+            font-weight: 700; 
+            font-size: 25px; /* Letras grandes para platos */
+            margin-bottom: 8px; 
+        }
+        .tarjeta-producto .precio { 
+            font-weight: 800; 
+            color: var(--primario); 
+            font-size: 20px; /* Precios grandes y claros */
+        }
+
+        /* 3. TICKET SECCIÓN (VISTA EN PANTALLA) */
+        .ticket-section { background: var(--tarjeta-bg); border-left: 1px solid var(--borde); display: flex; flex-direction: column; }
+        .ticket-header { padding: 20px; border-bottom: 1px solid var(--borde); }
+        .ticket-header h2 { margin: 0 0 15px 0; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+        .input-cliente { width: 100%; padding: 12px; border: 1px solid var(--borde); border-radius: 8px; box-sizing: border-box; font-size: 15px; outline: none; }
+        .input-cliente:focus { border-color: var(--primario); }
+
+        .ticket-items { flex: 1; padding: 20px; overflow-y: auto; }
+        .item-linea { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--borde); }
+        .item-detalles .item-nombre { font-weight: 600; font-size: 15px; }
+        .item-detalles .item-precio { font-size: 14px; color: #718096; }
+        .item-controles { display: flex; align-items: center; gap: 10px; }
+        .btn-cantidad { background: var(--gris-claro); border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        
+        .selector-servicio { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .btn-servicio { background: var(--gris-claro); color: var(--texto); border: 2px solid transparent; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-servicio.activo { background: #edf7ed; border-color: var(--primario); color: var(--primario); }
+
+        .ticket-totales { padding: 20px; background: #f7fafc; border-top: 1px solid var(--borde); }
+        .fila-total { display: flex; justify-content: space-between; font-size: 22px; font-weight: 700; margin-bottom: 15px; }
+        .btn-cobrar { width: 100%; background: var(--primario); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; }
+
+        /* VENTANA MODAL (PANEL ADMINISTRADOR DE MENÚ) */
+        .modal-admin {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center;
+        }
+        .modal-contenido {
+            background: white; padding: 30px; border-radius: 12px; width: 600px; max-height: 85vh;
+            overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+        .modal-contenido h2 { margin-top: 0; border-bottom: 2px solid var(--borde); padding-bottom: 10px; }
+        .formulario-item { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; background: var(--bg-principal); padding: 15px; border-radius: 8px; }
+        .formulario-item input { padding: 10px; border: 1px solid var(--borde); border-radius: 6px; font-size: 14px; }
+        .formulario-item button { grid-column: span 2; background: var(--primario); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        
+        .tabla-items-admin { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .tabla-items-admin th, .tabla-items-admin td { padding: 10px; text-align: left; border-bottom: 1px solid var(--borde); font-size: 14px; }
+        .btn-borrar-item { background: var(--peligro); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+
+        /* DISEÑO DEL TECLADO VIRTUAL DESPLEGABLE TÁCTIL */
+        .teclado-virtual {
+            position: fixed; bottom: -320px; left: 0; width: 100%; background: #cbd5e0;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.2); padding: 12px; box-sizing: border-box;
+            display: flex; flex-direction: column; gap: 8px; z-index: 9999; transition: bottom 0.3s ease;
+        }
+        .teclado-virtual.activo { bottom: 0; }
+        .teclado-fila { display: flex; justify-content: center; gap: 6px; width: 100%; }
+        .teclado-tecla {
+            flex: 1; max-width: 60px; height: 52px; background: #ffffff; border: none;
+            border-radius: 6px; font-size: 18px; font-weight: bold; color: #2d3748; cursor: pointer;
+            box-shadow: 0 2px 0 #a0aec0; display: flex; align-items: center; justify-content: center; user-select: none;
+        }
+        .teclado-tecla:active { background: #edf2f7; transform: translateY(2px); box-shadow: none; }
+        .teclado-tecla.ancho-doble { max-width: 120px; background: #a0aec0; color: white; }
+        .teclado-tecla.espacio { max-width: 350px; }
+        .teclado-tecla.accion { background: #47a973; color: white; max-width: 100px; }
+
+        /* AREA OCULTA PARA TICKETERA RW80L */
+        #area-impresion-final { display: none; }
+
+        @media print {
+    /* 1. Forzamos al navegador a usar el tamaño exacto del rollo de ticket */
+    @page {
+        size: 80mm auto; /* Ancho de 80mm y largo automático según los platos */
+        margin: 0mm;    /* Eliminamos márgenes para que no desperdicie papel */
+    }
+
+    /* Ocultamos absolutamente todo lo que está en la pantalla de la tablet */
+    body * { 
+        display: none !important; 
+    }
+
+    /* Mostramos únicamente el bloque de impresión */
+    #area-impresion-final, #area-impresion-final * { 
+        display: block !important; 
+    }
+
+    /* Configuramos el contenedor para que use el ancho real del papel */
+    #area-impresion-final { 
+        width: 72mm; /* Dejamos un pequeño margen de seguridad de 4mm a cada lado */
+        margin: 0 auto; 
+        padding: 5mm 3mm; /* Margen superior e inferior para el corte */
+        font-family: 'Courier New', Courier, monospace; 
+        color: #000; 
+        font-size: 13px; /* Tamaño de letra compacto y legible */
+        line-height: 1.3;
+    }
+
+    /* Forzamos que el recibo de cocina y cliente salgan juntos o separados limpiamente */
+    .recibo-cocina { 
+        width: 100%; 
+        border-bottom: 2px dashed #000; 
+        padding-bottom: 15px; 
+        margin-bottom: 15px; 
+    }
+    
+    .recibo-cliente { 
+        width: 100%; 
+        padding-top: 5px; 
+    }
+
+    .print-header { text-align: center; margin-bottom: 10px; }
+    .print-title { font-size: 16px; font-weight: bold; text-transform: uppercase; }
+    .print-separador { border-top: 1px dashed #000; margin: 6px 0; display: block !important; height: 1px; }
+    .print-linea-item { display: flex !important; justify-content: space-between; margin-bottom: 4px; }
+    .print-total-seccion { text-align: right; margin-top: 8px; font-size: 14px; }
+}
+.modal-descuento-contenido {
+    background: white; padding: 25px; border-radius: 16px; width: 380px; text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid var(--borde);
+}
+.modal-descuento-contenido h2 { margin: 0 0 5px 0; font-size: 20px; color: #1a202c; }
+.subtotal-info { font-size: 15px; color: #718096; margin-bottom: 20px; }
+.grid-descuentos-fijos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.btn-descuento-opcion { background: var(--gris-claro); border: 2px solid transparent; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; color: var(--texto); }
+.btn-descuento-opcion:active { background: #cbd5e0; }
+.btn-descuento-opcion.seleccionado { background: #ebf8ff; border-color: #3182ce; color: #2b6cb0; }
+
+.input-contenedor-nzd { position: relative; margin-bottom: 20px; }
+.input-contenedor-nzd span { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 20px; font-weight: bold; color: #a0aec0; }
+.input-descuento-nzd { width: 100%; padding: 14px 14px 14px 35px; border: 2px solid var(--borde); border-radius: 10px; font-size: 20px; font-weight: bold; box-sizing: border-box; outline: none; }
+.input-descuento-nzd:focus { border-color: var(--primario); }
+
+.fila-botones-modal { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-modal-accion { border: none; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; }
+.btn-modal-accion.aplicar { background: var(--primario); color: white; }
+.btn-modal-accion.cancelar { background: #718096; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="sidebar-categorias">
+            <div class="lista-botones-cat">
+                <h3>Menu</h3>
+                <div id="barra-categorias"></div>
+            </div>
+            <button class="btn-ajustes" onclick="abrirPanelAdmin()">⚙️ Manage Menu</button>
+        </div>
+
+        <div class="menu-section">
+            <div class="header-menu">
+                <h1>🍽️ Orders</h1>
+            </div>
+            <div class="grid-productos" id="grid-productos"></div>
+        </div>
+
+        <div class="ticket-section">
+            <div class="ticket-header">
+                <h2>📋 Current Order</h2>
+                <input type="text" id="cliente" class="input-cliente" placeholder="Table No. / Customer Name...">
+            </div>
+
+            <div class="ticket-items" id="lista-articulos-pantalla"></div>
+
+            <div class="ticket-totales">
+                <div class="selector-servicio">
+                    <button class="btn-servicio activo" id="btn-dine" onclick="cambiarServicio('Dine In')">🪑 Dine In</button>
+                    <button class="btn-servicio" id="btn-take" onclick="cambiarServicio('Take Away')">🛍️ Take Away</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 15px;">
+                    <button onclick="limpiarCarrito()" style="background:#e53e3e; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🗑️ Clear</button>
+                    <button onclick="parkOrder()" style="background:#dd6b20; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">⏳ Park</button>
+                    <button onclick="abrirModalDescuento()" style="background:#3182ce; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🏷️ Disc.</button>
+                    <button onclick="splitBill()" style="background:#805ad5; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🔀 Split</button>
+                </div>
+
+                <div class="fila-total">
+                    <span>Total:</span>
+                    <span id="total-pago">$0.00</span>
+                </div>
+                <button class="btn-cobrar" onclick="finalizarYGenerarRecibos()">🖨️ Print Receipts</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-admin" id="modalAdmin">
+        <div class="modal-contenido">
+            <h2>⚙️ Menu Manager Dashboard</h2>
+            <h3>Add New Item</h3>
+            <div class="formulario-item">
+                <input type="text" id="add-nombre" placeholder="Item Name (e.g., Stuffed Pita)">
+                <input type="number" id="add-precio" step="0.01" placeholder="Price NZD (e.g., 16.00)">
+                <input type="text" id="add-icono" placeholder="Emoji (e.g., 🥙)">
+                <input type="text" id="add-categoria" placeholder="Category (e.g., Extras, Wrap, Plates)">
+                <button onclick="guardarNuevoItem()">➕ Add to Menu</button>
+            </div>
+
+            <h3>Current Dishes</h3>
+            <table class="tabla-items-admin">
+                <thead>
+                    <tr>
+                        <th>Icon</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-items-cuerpo"></tbody>
+            </table>
+            <br>
+            <button class="btn-ajustes" style="width: 100%; background: var(--texto); color: white;" onclick="cerrarPanelAdmin()">Close & Save changes</button>
+        </div>
+    </div>
+<div class="modal-admin" id="modalDescuento">
+    <div class="modal-descuento-contenido">
+        <h2>🏷️ Order Discount</h2>
+        <div class="subtotal-info" id="desc-subtotal-info">Current Subtotal: $0.00</div>
+        
+        <div class="grid-descuentos-fijos">
+            <button class="btn-descuento-opcion" id="btn-desc-10" onclick="seleccionarDescuentoPorcentaje(10)">10% OFF</button>
+            <button class="btn-descuento-opcion" id="btn-desc-20" onclick="seleccionarDescuentoPorcentaje(20)">20% OFF</button>
+        </div>
+        
+        <div class="input-contenedor-nzd">
+            <span>$</span>
+            <input type="number" id="input-monto-personalizado" class="input-descuento-nzd" placeholder="0.00" step="0.01" oninput="limpiarBotonesPorcentaje()">
+        </div>
+        
+        <div class="fila-botones-modal">
+            <button class="btn-modal-accion cancelar" onclick="cerrarModalDescuento()">Cancel</button>
+            <button class="btn-modal-accion aplicar" onclick="procesarAplicarDescuento()">Apply Discount</button>
+        </div>
+    </div>
+</div>
+
+    <div id="tecladoVirtual" class="teclado-virtual">
+        <div class="teclado-fila">
+            <button class="teclado-tecla" onclick="escribirTecla('1')">1</button>
+            <button class="teclado-tecla" onclick="escribirTecla('2')">2</button>
+            <button class="teclado-tecla" onclick="escribirTecla('3')">3</button>
+            <button class="teclado-tecla" onclick="escribirTecla('4')">4</button>
+            <button class="teclado-tecla" onclick="escribirTecla('5')">5</button>
+            <button class="teclado-tecla" onclick="escribirTecla('6')">6</button>
+            <button class="teclado-tecla" onclick="escribirTecla('7')">7</button>
+            <button class="teclado-tecla" onclick="escribirTecla('8')">8</button>
+            <button class="teclado-tecla" onclick="escribirTecla('9')">9</button>
+            <button class="teclado-tecla" onclick="escribirTecla('0')">0</button>
+            <button class="teclado-tecla" onclick="escribirTecla('.')">.</button>
+        </div>
+        <div class="teclado-fila">
+            <button class="teclado-tecla" onclick="escribirTecla('Q')">Q</button>
+            <button class="teclado-tecla" onclick="escribirTecla('W')">W</button>
+            <button class="teclado-tecla" onclick="escribirTecla('E')">E</button>
+            <button class="teclado-tecla" onclick="escribirTecla('R')">R</button>
+            <button class="teclado-tecla" onclick="escribirTecla('T')">T</button>
+            <button class="teclado-tecla" onclick="escribirTecla('Y')">Y</button>
+            <button class="teclado-tecla" onclick="escribirTecla('U')">U</button>
+            <button class="teclado-tecla" onclick="escribirTecla('I')">I</button>
+            <button class="teclado-tecla" onclick="escribirTecla('O')">O</button>
+            <button class="teclado-tecla" onclick="escribirTecla('P')">P</button>
+        </div>
+        <div class="teclado-fila">
+            <button class="teclado-tecla" onclick="escribirTecla('A')">A</button>
+            <button class="teclado-tecla" onclick="escribirTecla('S')">S</button>
+            <button class="teclado-tecla" onclick="escribirTecla('D')">D</button>
+            <button class="teclado-tecla" onclick="escribirTecla('F')">F</button>
+            <button class="teclado-tecla" onclick="escribirTecla('G')">G</button>
+            <button class="teclado-tecla" onclick="escribirTecla('H')">H</button>
+            <button class="teclado-tecla" onclick="escribirTecla('J')">J</button>
+            <button class="teclado-tecla" onclick="escribirTecla('K')">K</button>
+            <button class="teclado-tecla" onclick="escribirTecla('L')">L</button>
+        </div>
+        <div class="teclado-fila">
+            <button class="teclado-tecla" onclick="escribirTecla('Z')">Z</button>
+            <button class="teclado-tecla" onclick="escribirTecla('X')">X</button>
+            <button class="teclado-tecla" onclick="escribirTecla('C')">C</button>
+            <button class="teclado-tecla" onclick="escribirTecla('V')">V</button>
+            <button class="teclado-tecla" onclick="escribirTecla('B')">B</button>
+            <button class="teclado-tecla" onclick="escribirTecla('N')">N</button>
+            <button class="teclado-tecla" onclick="escribirTecla('M')">M</button>
+            <button class="teclado-tecla ancho-doble" onclick="borrarTecla()">⌫ Back</button>
+        </div>
+        <div class="teclado-fila">
+            <button class="teclado-tecla espacio" onclick="escribirTecla(' ')">Space</button>
+            <button class="teclado-tecla accion" onclick="ocultarTecladoVirtual()">OK ✓</button>
+        </div>
+    </div>
+
+    <div id="area-impresion-final">
+        <div class="recibo-cocina">
+            <div class="print-header">
+                <span class="print-title">*** KITCHEN ORDER ***</span><br>
+                <span id="cocina-fecha"></span>
+            </div>
+            <div style="font-size: 15px; margin-bottom: 10px;">
+                <strong>MESA/NAME:</strong> <span id="cocina-mesa" style="font-size: 17px; font-weight: bold;"></span><br>
+                <strong>SERVICE:</strong> <span id="cocina-servicio"></span>
+            </div>
+            <div class="print-separador"></div>
+            <div id="cocina-items" style="font-size: 16px; font-weight: bold;"></div>
+            <div class="print-separador"></div>
+            <div style="text-align: center; font-size: 11px;">[ Kitchen Copy ]</div>
+        </div>
+
+        <div class="recibo-cliente">
+            <div class="print-header">
+                <span class="print-title">AULA'S KITCHEN</span><br>
+                <span>269 Parnell Road, Auckland</span><br>
+                <span style="font-size: 16px; font-weight: bold; display:inline-block; margin-top:5px;">TAX INVOICE</span>
+            </div>
+            <div class="print-separador"></div>
+            <div>
+                <strong>Date:</strong> <span id="cliente-fecha"></span><br>
+                <strong>Table/Ref:</strong> <span id="cliente-mesa"></span><br>
+                <strong>Type:</strong> <span id="cliente-servicio"></span>
+            </div>
+            <div class="print-separador"></div>
+            <div id="cliente-items"></div>
+            <div class="print-separador"></div>
+            <div class="print-total-seccion">
+                <div id="print-descuento-linea" style="display:none; color:#000;">Discount: <span id="cliente-descuento"></span></div>
+                <div>TOTAL (GST Incl.): <strong id="cliente-total" style="font-size: 16px;"></strong></div>
+                <div style="font-size: 12px; margin-top: 4px;">Includes GST (15%): <span id="cliente-gst"></span></div>
+            </div>
+            <div class="print-separador"></div>
+            <div style="text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px;">
+                Thank you! / Ngā mihi nui
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // BASE DE DATOS INICIAL DE PRODUCTOS
+        const platosBase = [
+            { id: 1, nombre: "Falafel pita", precio: 22.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
+		{ id: 2, nombre: "Schnitzel pita", precio: 25.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
+		{ id: 3, nombre: "Lamb & beef pita", precio: 25.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
+            { id: 4, nombre: "Falafel wrap", precio: 27.00, icono: "🌯", categoria: "WRAP" },
+	{ id: 5, nombre: "Schnitzel wrap", precio: 27.00, icono: "🌯", categoria: "WRAP" },
+	{ id: 6, nombre: "Lamb & beef wrap", precio: 27.00, icono: "🌯", categoria: "WRAP" },
+	{ id: 7, nombre: "Chichen wrap", precio: 27.00, icono: "🌯", categoria: "WRAP" },
+	{ id: 8, nombre: "Lamb wrap", precio: 30.00, icono: "🌯", categoria: "WRAP" },
+            { id: 9, nombre: "Classic Hummus", precio: 23.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
+{ id: 10, nombre: "Mushroom Hummus", precio: 24.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
+{ id: 11, nombre: "Lamb & beef Hummus", precio: 25.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
+{ id: 12, nombre: "Baba Ghanoush", precio: 21.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
+{ id: 13, nombre: "Cheese Labneh", precio: 20.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
+            { id: 14, nombre: "Falafel 7PCs", precio: 17.00, icono: "🥗", categoria: "SIDES & SALAD" },
+{ id: 15, nombre: "Fries", precio: 13.00, icono: "🥗", categoria: "SIDES & SALAD" },
+{ id: 16, nombre: "Fattoush salad", precio: 23.00, icono: "🥗", categoria: "SIDES & SALAD" },
+{ id: 17, nombre: "Chichen salad", precio: 27.00, icono: "🥗", categoria: "SIDES & SALAD" },
+            { id: 18, nombre: "Lamb & beef shared plate", precio: 65.00, icono: "🥨", categoria: "SHARED PLATES" },
+{ id: 19, nombre: "Schnitzel share plate", precio: 65.00, icono: "🥨", categoria: "SHARED PLATES" },
+{ id: 20, nombre: "Falafel share plate", precio: 60.00, icono: "🥨", categoria: "SHARED PLATES" },
+{ id: 21, nombre: "Mixed plate", precio: 120.00, icono: "🥨", categoria: "SHARED PLATES" },
+            { id: 22, nombre: "Drink", precio: 6.00, icono: "🥨", categoria: "EXTRAS" },
+{ id: 23, nombre: "Dessert", precio: 15.00, icono: "🥨", categoria: "EXTRAS" },
+{ id: 24, nombre: "Ice cream", precio: 3.00, icono: "🥨", categoria: "EXTRAS" },
+{ id: 25, nombre: "Pita bread", precio: 2.00, icono: "🥨", categoria: "EXTRAS" }
+        ];
+
+        let menu = JSON.parse(localStorage.getItem('pos_menu_data')) || platosBase;
+        let carrito = [];
+        let ordenesParqueadas = [];
+        let descuentoActual = 0;
+        let categoriasReales = [...new Set(menu.map(p => p.categoria))];
+        let categoriaSeleccionada = categoriasReales[0] || "Extras"; 
+        let tipoServicio = "Dine In";
+	let porcentajeSeleccionado = 0;
+
+        function guardarMenuEnMemoria() {
+            localStorage.setItem('pos_menu_data', JSON.stringify(menu));
+            categoriasReales = [...new Set(menu.map(p => p.categoria))];
+        }
+
+        function renderizarCategorias() {
+            const barra = document.getElementById('barra-categorias');
+            barra.innerHTML = '';
+            categoriasReales.forEach(cat => {
+                const claseActivo = cat === categoriaSeleccionada ? 'activo' : '';
+                barra.innerHTML += `<button class="btn-categoria ${claseActivo}" onclick="filtrarCategoria('${cat}')">🍛 ${cat}</button>`;
+            });
+        }
+
+        function filtrarCategoria(categoria) {
+            categoriaSeleccionada = categoria;
+            renderizarCategorias();
+            renderizarMenu();
+        }
+
+        function renderizarMenu() {
+            const grid = document.getElementById('grid-productos');
+            grid.innerHTML = '';
+            
+            // 1. DIBUJAMOS LOS PLATOS REGISTRADOS NORMALES
+            const productosFiltrados = menu.filter(p => p.categoria === categoriaSeleccionada);
+            productosFiltrados.forEach(p => {
+                grid.innerHTML += `
+                    <div class="tarjeta-producto" onclick="agregarProducto(${p.id})">
+                        <div class="emoji-icono">${p.icono || "🍽️"}</div>
+                        <div class="nombre">${p.nombre}</div>
+                        <div class="precio">$${parseFloat(p.precio).toFixed(2)}</div>
+                    </div>`;
+            });
+
+            // 2. MODIFICACIÓN EXTRAS: BOTÓN COMODÍN AL FINAL DE LA LISTA
+            if (categoriaSeleccionada.toLowerCase() === "extras") {
+                grid.innerHTML += `
+                    <div class="tarjeta-producto" onclick="agregarPlatoEspecial()" style="border: 2px dashed #3182ce; background: #ebf8ff;">
+                        <div class="emoji-icono" style="background: #ebf8ff; font-size: 38px;">📝</div>
+                        <div class="nombre" style="color: #2b6cb0;">+ Custom Extra</div>
+                        <div class="precio" style="color: #2b6cb0;">Variable</div>
+                    </div>`;
+            }
+        }
+
+        function cambiarServicio(tipo) {
+            tipoServicio = tipo;
+            document.getElementById('btn-dine').classList.remove('activo');
+            document.getElementById('btn-take').classList.remove('activo');
+            if(tipo === 'Dine In') document.getElementById('btn-dine').classList.add('activo');
+            else document.getElementById('btn-take').classList.add('activo');
+        }
+
+        function agregarProducto(id) {
+            const prod = menu.find(p => p.id === id);
+            const existe = carrito.find(item => item.id === id);
+            if (existe) { existe.cantidad++; } else { carrito.push({ ...prod, cantidad: 1 }); }
+            actualizarInterfazPantalla();
+        }
+
+        function cambiarCantidad(id, cambio) {
+            const item = carrito.find(p => p.id === id);
+            if (!item) return;
+            item.cantidad += cambio;
+            if (item.cantidad <= 0) { carrito = carrito.filter(p => p.id !== id); }
+            actualizarInterfazPantalla();
+        }
+
+        function actualizarInterfazPantalla() {
+            const contenedor = document.getElementById('lista-articulos-pantalla');
+            contenedor.innerHTML = '';
+            let subtotal = 0;
+
+            carrito.forEach(item => {
+                const precioLinea = item.precio * item.cantidad;
+                subtotal += precioLinea;
+                contenedor.innerHTML += `
+                    <div class="item-linea">
+                        <div class="item-detalles">
+                            <div class="item-nombre">${item.nombre}</div>
+                            <div class="item-precio">$${parseFloat(item.precio).toFixed(2)}</div>
+                        </div>
+                        <div class="item-controles">
+                            <button class="btn-cantidad" onclick="cambiarCantidad(${item.id}, -1)">-</button>
+                            <span><strong>${item.cantidad}</strong></span>
+                            <button class="btn-cantidad" onclick="cambiarCantidad(${item.id}, 1)">+</button>
+                        </div>
+                    </div>`;
+            });
+
+            let totalFinal = subtotal - descuentoActual;
+            if(totalFinal < 0) totalFinal = 0;
+
+            if (descuentoActual > 0) {
+                document.getElementById('total-pago').innerHTML = `<span style="font-size:14px; color:#e53e3e; font-weight:normal;">(-$${descuentoActual.toFixed(2)})</span> $${totalFinal.toFixed(2)}`;
+            } else {
+                document.getElementById('total-pago').innerText = `$${totalFinal.toFixed(2)}`;
+            }
+        }
+
+        function agregarPlatoEspecial() {
+            const nombreEspecial = prompt("Enter custom extra name:\n(e.g., Extra Avocado / Less Spicy)");
+            if (!nombreEspecial) return;
+
+            const precioInput = prompt(`Enter price for "${nombreEspecial}" (NZD):`, "0.00");
+            const precioEspecial = parseFloat(precioInput);
+            if (isNaN(precioEspecial)) return alert("Invalid price.");
+
+            const idUnico = Date.now(); 
+            carrito.push({ id: idUnico, nombre: `*EXT* ${nombreEspecial}`, precio: precioEspecial, cantidad: 1 });
+            actualizarInterfazPantalla();
+        }
+
+        /* 🛒 LOGICA DE CONTROL DE LA BARRA DE ACCIONES (4 BOTONES) */
+        
+        // ACTUALIZACIÓN SOLICITADA: CLEAR INSTANTÁNEO SIN PREGUNTAS
+        function limpiarCarrito() {
+            carrito = [];
+            descuentoActual = 0;
+            document.getElementById('cliente').value = '';
+            actualizarInterfazPantalla();
+        }
+
+        function parkOrder() {
+            if (carrito.length === 0) return alert("Add items first before parking.");
+            const cliente = document.getElementById('cliente').value || `Table ${ordenesParqueadas.length + 1}`;
+            
+            ordenesParqueadas.push({ id: Date.now(), cliente, items: [...carrito], tipoServicio });
+            carrito = [];
+            descuentoActual = 0;
+            document.getElementById('cliente').value = '';
+            
+            actualizarInterfazPantalla();
+            renderizarOrdenesParqueadas();
+            alert(`Order parked for: ${cliente}`);
+        }
+
+        function renderizarOrdenesParqueadas() {
+            let contenedor = document.getElementById('lista-parked');
+            if (!contenedor) {
+                const secciónTicket = document.querySelector('.ticket-header');
+                contenedor = document.createElement('div');
+                contenedor.id = 'lista-parked';
+                contenedor.style = "display: flex; gap: 6px; padding: 10px; overflow-x: auto; background: #feebc8; border-bottom: 1px solid #fbd38d;";
+                secciónTicket.after(contenedor);
+            }
+            contenedor.innerHTML = ordenesParqueadas.length === 0 ? '<span style="font-size:12px; color:#c05621;">No parked orders</span>' : '';
+            ordenesParqueadas.forEach(orden => {
+                contenedor.innerHTML += `<button onclick="recuperarOrden(${orden.id})" style="background:#dd6b20; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; font-size:13px; cursor:pointer; white-space:nowrap;">⏳ ${orden.cliente}</button>`;
+            });
+        }
+
+        function recuperarOrden(id) {
+            if (carrito.length > 0 && !confirm("Overwrite current items on screen?")) return;
+            const orden = ordenesParqueadas.find(o => o.id === id);
+            if (!orden) return;
+
+            carrito = [...orden.items];
+            document.getElementById('cliente').value = orden.cliente;
+            cambiarServicio(orden.tipoServicio);
+            ordenesParqueadas = ordenesParqueadas.filter(o => o.id !== id);
+            
+            actualizarInterfazPantalla();
+            renderizarOrdenesParqueadas();
+        }
+function abrirModalDescuento() {
+    if (carrito.length === 0) return alert("No items to discount.");
+    
+    let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    document.getElementById('desc-subtotal-info').innerText = `Current Subtotal: $${subtotal.toFixed(2)} NZD`;
+    
+    porcentajeSeleccionado = 0;
+    document.getElementById('input-monto-personalizado').value = '';
+    document.getElementById('btn-desc-10').classList.remove('seleccionado');
+    document.getElementById('btn-desc-20').classList.remove('seleccionado');
+    
+    document.getElementById('modalDescuento').style.display = 'flex';
+}
+
+function cerrarModalDescuento() {
+    document.getElementById('modalDescuento').style.display = 'none';
+    ocultarTecladoVirtual();
+}
+
+function seleccionarDescuentoPorcentaje(porcentaje) {
+    porcentajeSeleccionado = porcentaje;
+    document.getElementById('input-monto-personalizado').value = ''; 
+    
+    document.getElementById('btn-desc-10').classList.remove('seleccionado');
+    document.getElementById('btn-desc-20').classList.remove('seleccionado');
+    
+    if(porcentaje === 10) document.getElementById('btn-desc-10').classList.add('seleccionado');
+    if(porcentaje === 20) document.getElementById('btn-desc-20').classList.add('seleccionado');
+}
+
+function limpiarBotonesPorcentaje() {
+    porcentajeSeleccionado = 0;
+    document.getElementById('btn-desc-10').classList.remove('seleccionado');
+    document.getElementById('btn-desc-20').classList.remove('seleccionado');
+}
+
+function procesarAplicarDescuento() {
+    let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    let montoPersonalizado = parseFloat(document.getElementById('input-monto-personalizado').value);
+
+    if (porcentajeSeleccionado > 0) {
+        descuentoActual = subtotal * (porcentajeSeleccionado / 100);
+    } else if (!isNaN(montoPersonalizado) && montoPersonalizado > 0) {
+        descuentoActual = montoPersonalizado;
+    } else {
+        descuentoActual = 0; 
+    }
+
+    actualizarInterfazPantalla();
+    cerrarModalDescuento();
+}
+        function splitBill() {
+            if (carrito.length === 0) return alert("Cart is empty.");
+            let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0) - descuentoActual;
+            if (subtotal <= 0) return;
+
+            const opcion = prompt("How would you like to split?\n1 = Split equally (By number of people)\n2 = Split by Items");
+
+            if (opcion === "1") {
+                const personas = parseInt(prompt("How many people in the group?", "2"));
+                if (isNaN(personas) || personas <= 1) return;
+                alert(`🎯 SPLIT EQUALLY:\n\n${personas} People\nEach person pays: $${(subtotal / personas).toFixed(2)} NZD`);
+            } else if (opcion === "2") {
+                let desglose = "📦 SPLIT BY ITEMS:\n\n";
+                carrito.forEach(item => { desglose += `${item.cantidad}x ${item.nombre} = $${(item.precio * item.cantidad).toFixed(2)} NZD\n`; });
+                desglose += `\nTotal Ticket: $${subtotal.toFixed(2)} NZD`;
+                alert(desglose);
+            }
+        }
+
+        /* 🚀 FUNCIÓN INTEGRADA CON SIMULACIÓN DE ENVÍO DE COBRO AUTOMÁTICO AL POS EFTPOS */
+        function finalizarYGenerarRecibos() {
+            if (carrito.length === 0) return alert("Please add products first.");
+            
+            let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+            let totalFinal = subtotal - descuentoActual;
+            if (totalFinal < 0) totalFinal = 0;
+
+            // PREPARACIÓN ESTRUCTURAL: Simulación de transmisión de datos hacia la terminal de pago
+            console.log(`📡 [EFTPOS INTEGRATION] Moviendo $${totalFinal.toFixed(2)} NZD al Pinpad...`);
+            
+            // Pasamos directo al flujo de impresión del ticket físico en la Element RW80L
+            procederConImpresion(totalFinal, subtotal);
+        }
+
+        function procederConImpresion(totalFinal, subtotal) {
+            const mesaOCliente = document.getElementById('cliente').value || "Walk-in";
+            const ahora = new Date();
+            const fechaHoraStr = ahora.toLocaleDateString('en-NZ') + " " + ahora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            const contenedorCocinaItems = document.getElementById('cocina-items');
+            const contenedorClienteItems = document.getElementById('cliente-items');
+            contenedorCocinaItems.innerHTML = '';
+            contenedorClienteItems.innerHTML = '';
+
+            carrito.forEach(item => {
+                const precioLinea = item.precio * item.cantidad;
+                contenedorCocinaItems.innerHTML += `<div style="text-align: left;">[ ] ${item.cantidad} x ${item.nombre}</div>`;
+                contenedorClienteItems.innerHTML += `<div class="print-linea-item"><span>${item.cantidad}x ${item.nombre}</span><span>$${precioLinea.toFixed(2)}</span></div>`;
+            });
+
+            const gstCalculado = totalFinal / 7.6667;
+
+            if(descuentoActual > 0) {
+                document.getElementById('print-descuento-linea').style.display = 'block';
+                document.getElementById('cliente-descuento').innerText = `-$${descuentoActual.toFixed(2)}`;
+            } else {
+                document.getElementById('print-descuento-linea').style.display = 'none';
+            }
+
+            document.getElementById('cocina-fecha').innerText = fechaHoraStr;
+            document.getElementById('cocina-mesa').innerText = mesaOCliente.toUpperCase();
+            document.getElementById('cocina-servicio').innerText = tipoServicio.toUpperCase();
+
+            document.getElementById('cliente-fecha').innerText = fechaHoraStr;
+            document.getElementById('cliente-mesa').innerText = mesaOCliente;
+            document.getElementById('cliente-servicio').innerText = tipoServicio;
+            document.getElementById('cliente-total').innerText = `$${totalFinal.toFixed(2)}`;
+            document.getElementById('cliente-gst').innerText = `$${gstCalculado.toFixed(2)}`;
+
+            window.print();
+
+            // Reseteo limpio de la interfaz de la tablet para el siguiente tique
+            carrito = [];
+            descuentoActual = 0;
+            document.getElementById('cliente').value = '';
+            cambiarServicio('Dine In');
+            actualizarInterfazPantalla();
+        }
+
+        /* PANEL ADMINISTRADOR DEL MENÚ COMPLETO */
+        function abrirPanelAdmin() {
+            document.getElementById('modalAdmin').style.display = 'flex';
+            renderizarTablaAdmin();
+        }
+        function cerrarPanelAdmin() {
+            document.getElementById('modalAdmin').style.display = 'none';
+            renderizarCategorias();
+            renderizarMenu();
+        }
+        function renderizarTablaAdmin() {
+            const tabla = document.getElementById('tabla-items-cuerpo');
+            tabla.innerHTML = '';
+            menu.forEach(item => {
+                tabla.innerHTML += `<tr><td>${item.icono}</td><td><strong>${item.nombre}</strong></td><td>${item.categoria}</td><td>$${parseFloat(item.precio).toFixed(2)}</td><td><button class="btn-borrar-item" onclick="eliminarItemMenu(${item.id})">❌ Delete</button></td></tr>`;
+            });
+        }
+        function guardarNuevoItem() {
+            const nombre = document.getElementById('add-nombre').value;
+            const precio = parseFloat(document.getElementById('add-precio').value);
+            const icono = document.getElementById('add-icono').value || "🍽️";
+            const categoria = document.getElementById('add-categoria').value || "Extras";
+
+            if(!nombre || isNaN(precio)) return alert("Fill fields.");
+            const nuevoId = menu.length > 0 ? Math.max(...menu.map(p => p.id)) + 1 : 1;
+            menu.push({ id: nuevoId, nombre, precio, icono, categoria });
+            
+            guardarMenuEnMemoria();
+            renderizarTablaAdmin();
+            document.getElementById('add-nombre').value = '';
+            document.getElementById('add-precio').value = '';
+        }
+        function eliminarItemMenu(id) {
+            if(confirm("Delete item?")) { menu = menu.filter(p => p.id !== id); guardarMenuEnMemoria(); renderizarTablaAdmin(); }
+        }
+
+        /* 🧠 EL CEREBRO DEL TECLADO VIRTUAL TÁCTIL INTELIGENTE */
+        let inputActivoActual = null;
+
+        document.addEventListener('focusin', function(e) {
+            if (e.target.tagName === 'INPUT') {
+                inputActivoActual = e.target;
+                document.getElementById('tecladoVirtual').classList.add('activo');
+            }
+        });
+
+        function escribirTecla(caracter) {
+            if (inputActivoActual) {
+                inputActivoActual.value += caracter;
+                inputActivoActual.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+
+        function borrarTecla() {
+            if (inputActivoActual && inputActivoActual.value.length > 0) {
+                inputActivoActual.value = inputActivoActual.value.slice(0, -1);
+                inputActivoActual.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+
+        function ocultarTecladoVirtual() {
+            document.getElementById('tecladoVirtual').classList.remove('activo');
+            if (inputActivoActual) { inputActivoActual.blur(); }
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('input') && !e.target.closest('.teclado-virtual') && !e.target.closest('.tarjeta-producto') && !e.target.closest('button')) {
+                ocultarTecladoVirtual();
+            }
+        });
+
+        // ARRANQUE COMPLETO
+        renderizarCategorias();
+        renderizarMenu();
+    </script>
+</body>
+</html>
