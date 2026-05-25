@@ -245,18 +245,31 @@
             .print-linea-item { display: flex !important; justify-content: space-between; margin-bottom: 4px; }
             .print-total-seccion { text-align: right; margin-top: 8px; font-size: 14px; }
         }
+        /* MONITOR DE VISTA PREVIA DIRECTA EN PANTALLA */
+.monitor-vista-previa {
+    background: #1a202c;
+    color: #48bb78;
+    padding: 10px;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 11px;
+    max-height: 180px;
+    overflow-y: auto;
+    border: 2px solid #2d3748;
+    white-space: pre-wrap;
+    margin-top: 15px;
+}
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        <div class="sidebar-categorias">
-            <div class="lista-botones-cat">
-                <h3>Menu</h3>
-                <div id="barra-categorias"></div>
-            </div>
-            <button class="btn-ajustes" onclick="abrirPanelAdmin()">⚙️ Manage Menu</button>
-        </div>
+        <div class="sidebar-categorias"> 
+           <div>
+    <div style="font-size: 11px; font-weight: bold; color: #718096; margin-bottom: 4px;">🖨️ Ticket Spooler Preview:</div>
+    <div id="pantalla-debug-ticket" class="monitor-vista-previa">Waiting for print action...</div>
+    <button class="btn-ajustes" style="width:100%; margin-top:10px;" onclick="abrirPanelAdmin()">⚙️ Manage Menu</button>
+</div>
 
         <div class="menu-section">
             <div class="header-menu">
@@ -671,7 +684,33 @@
             const mesaRef = document.getElementById('cliente').value || "Walk-in";
             const tiempo = new Date();
             const fechaHoraStr = tiempo.toLocaleDateString('en-NZ') + " " + tiempo.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+// --- GENERAR REPORTE TEXTO PURO PARA EL MONITOR DE REVISIÓN ---
+let textoPreviewDebug = "";
+textoPreviewDebug += `=== MONITOR: TRANSMISSION LOG ===\n`;
+textoPreviewDebug += `[START KITCHEN TICKET]\n`;
+textoPreviewDebug += `DATE: ${fechaHoraStr}\n`;
+textoPreviewDebug += `REF: ${mesaRef.toUpperCase()} | ${tipoServicio.toUpperCase()}\n`;
+textoPreviewDebug += `--------------------------------\n`;
+carrito.forEach(item => {
+    textoPreviewDebug += `${item.cantidad} x ${item.nombre}\n`;
+});
+textoPreviewDebug += `--------------------------------\n`;
 
+if (tipo === 'ambos') {
+    textoPreviewDebug += `[HARDWARE CUT COMMAND SENT]\n\n`;
+    textoPreviewDebug += `[START CUSTOMER INVOICE]\n`;
+    textoPreviewDebug += `KIWI BITES CAFE (GST Reg)\n`;
+    textoPreviewDebug += `--------------------------------\n`;
+    carrito.forEach(item => {
+        textoPreviewDebug += `${item.cantidad}x ${item.nombre} -> $${(item.precio * item.cantidad).toFixed(2)}\n`;
+    });
+    if(descuentoActual > 0) textoPreviewDebug += `Discount: -$${descuentoActual.toFixed(2)}\n`;
+    textoPreviewDebug += `TOTAL DUE: $${totalFinal.toFixed(2)}\n`;
+    textoPreviewDebug += `================================`;
+}
+
+// Inyectar el texto en el recuadro negro de la pantalla para auditarlo sin gastar hojas
+document.getElementById('pantalla-debug-ticket').innerText = textoPreviewDebug;
             // Generamos dinámicamente bloques HTML puros sin aplicarles reglas "none" que rompan la cola de impresión
             let htmlResultadoInyeccion = "";
 
