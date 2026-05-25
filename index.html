@@ -220,13 +220,34 @@
         @media print {
             @page { size: 80mm auto; margin: 0mm; }
             body * { display: none !important; }
-            #area-impresion-final, #area-impresion-final * { display: block !important; }
+            
+            /* Habilitamos el contenedor principal */
             #area-impresion-final { 
-                width: 72mm; margin: 0 auto; padding: 5mm 3mm; 
-                font-family: 'Courier New', Courier, monospace; color: #000; font-size: 13px; line-height: 1.3;
+                display: block !important; 
+                width: 72mm; 
+                margin: 0 auto; 
+                padding: 0mm; 
             }
-            .recibo-cocina { width: 100%; border-bottom: 2px dashed #000; padding-bottom: 15px; margin-bottom: 15px; }
-            .recibo-cliente { width: 100%; padding-top: 5px; }
+            
+            /* Forzar a que cada recibo actúe como una página individual */
+            .recibo-cocina, .recibo-cliente {
+                display: block !important;
+                width: 72mm;
+                padding: 5mm 3mm;
+                font-family: 'Courier New', Courier, monospace; 
+                color: #000; 
+                font-size: 13px; 
+                line-height: 1.3;
+                box-sizing: border-box;
+            }
+
+            /* EL TRUCO DEL CORTE: Fuerza a la ticketera a cortar aquí */
+            .recibo-cocina { 
+                page-break-after: always; 
+                break-after: page;
+                border-bottom: 2px dashed #000; 
+            }
+            
             .print-header { text-align: center; margin-bottom: 10px; }
             .print-title { font-size: 16px; font-weight: bold; text-transform: uppercase; }
             .print-separador { border-top: 1px dashed #000; margin: 6px 0; display: block !important; height: 1px; }
