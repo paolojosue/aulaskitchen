@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu Manager PaoloNet</title>
+    <title>NZ Restaurant POS - Cloud Edition</title>
     <style>
         :root {
             --bg-principal: #f8f9fa;
@@ -211,46 +211,37 @@
         .teclado-tecla.espacio { max-width: 350px; }
         .teclado-tecla.accion { background: var(--primario); color: white; max-width: 100px; }
 
-        /* AREA DE IMPRESIÓN FISICA - OCULTA EN PANTALLA NORMAL */
-        #area-impresion-final {
+        /* COMPONENTE DE RECIBO DE IMPRESIÓN (OCULTO EN LA PANTALLA TOTALMENTE) */
+        #contenedor-impresion-oculto {
             display: none;
         }
 
-        /* AREA DE IMPRESIÓN CONFIGURADA PARA 80MM SIN DESPERDICIO */
+        /* 🖨️ CONFIGURACIÓN DE IMPRESIÓN EXCLUSIVA Y DIRECTA EN 80MM */
         @media print {
-            @page { size: 80mm auto; margin: 0mm; }
             body * { display: none !important; }
+            #contenedor-impresion-oculto { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
             
-            /* Habilitamos el contenedor principal */
-            #area-impresion-final { 
-                display: block !important; 
-                width: 72mm; 
-                margin: 0 auto; 
-                padding: 0mm; 
-            }
-            
-            /* Forzar a que cada recibo actúe como una página individual */
-            .recibo-cocina, .recibo-cliente {
-                display: block !important;
+            .recibo-formato-termico {
                 width: 72mm;
-                padding: 5mm 3mm;
-                font-family: 'Courier New', Courier, monospace; 
-                color: #000; 
-                font-size: 13px; 
-                line-height: 1.3;
+                margin: 0 auto !important;
+                padding: 4mm 2mm !important;
+                font-family: 'Courier New', Courier, monospace !important;
+                color: #000 !important;
+                font-size: 13px !important;
+                line-height: 1.3 !important;
                 box-sizing: border-box;
+                display: block !important;
             }
 
-            /* EL TRUCO DEL CORTE: Fuerza a la ticketera a cortar aquí */
-            .recibo-cocina { 
-                page-break-after: always; 
-                break-after: page;
-                border-bottom: 2px dashed #000; 
+            /* Forzar el corte físico de papel entre un tique y otro */
+            .corte-pagina-forzado {
+                page-break-after: always !important;
+                break-after: page !important;
             }
-            
-            .print-header { text-align: center; margin-bottom: 10px; }
+
+            .print-header { text-align: center; margin-bottom: 8px; }
             .print-title { font-size: 16px; font-weight: bold; text-transform: uppercase; }
-            .print-separador { border-top: 1px dashed #000; margin: 6px 0; display: block !important; height: 1px; }
+            .print-separador { border-top: 1px dashed #000 !important; margin: 6px 0; display: block !important; height: 1px; }
             .print-linea-item { display: flex !important; justify-content: space-between; margin-bottom: 4px; }
             .print-total-seccion { text-align: right; margin-top: 8px; font-size: 14px; }
         }
@@ -299,7 +290,11 @@
                     <span>Total:</span>
                     <span id="total-pago">$0.00</span>
                 </div>
-                <button class="btn-cobrar" onclick="finalizarYGenerarRecibos()">🖨️ Print Receipts</button>
+                
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="btn-cobrar" onclick="ejecutarImpresionEspecial('cocina')">🍳 Send to Kitchen</button>
+                    <button class="btn-cobrar" style="background: #4a5568;" onclick="ejecutarImpresionEspecial('ambos')">🧾 Kitchen + Invoice</button>
+                </div>
             </div>
         </div>
     </div>
@@ -423,46 +418,9 @@
         </div>
     </div>
 
-    <div id="area-impresion-final">
-        <div class="recibo-cocina">
-            <div class="print-header">
-                <span class="print-title">*** KITCHEN ORDER ***</span><br>
-                <span id="cocina-fecha"></span>
-            </div>
-            <div style="font-size: 14px; margin-bottom: 8px;">
-                <strong>MESA/NAME:</strong> <span id="cocina-mesa" style="font-weight: bold;"></span><br>
-                <strong>SERVICE:</strong> <span id="cocina-servicio"></span>
-            </div>
-            <div class="print-separador"></div>
-            <div id="cocina-items" style="font-weight: bold;"></div>
-            <div class="print-separador"></div>
-        </div>
-        <div class="recibo-cliente">
-            <div class="print-header">
-                <span class="print-title">AULA'S KITCHEN</span><br>
-                <span style="font-weight: bold; display:inline-block; margin-top:3px;">TAX INVOICE</span>
-            </div>
-            <div class="print-separador"></div>
-            <div>
-                <strong>Date:</strong> <span id="cliente-fecha"></span><br>
-                <strong>Table/Ref:</strong> <span id="cliente-mesa"></span><br>
-                <strong>Type:</strong> <span id="cliente-servicio"></span>
-            </div>
-            <div class="print-separador"></div>
-            <div id="cliente-items"></div>
-            <div class="print-separador"></div>
-            <div class="print-total-seccion">
-                <div id="print-descuento-linea" style="display:none;">Discount: <span id="cliente-descuento"></span></div>
-                <div>TOTAL (GST Incl.): <strong id="cliente-total" style="font-size: 15px;"></strong></div>
-                <div style="font-size: 11px;">Includes GST (15%): <span id="cliente-gst"></span></div>
-            </div>
-            <div class="print-separador"></div>
-            <div style="text-align: center; font-weight: bold; margin-top: 5px;">Thank you! / Ngā mihi nui</div>
-        </div>
-    </div>
+    <div id="contenedor-impresion-oculto"></div>
 
     <script>
-        /* 🆕 NUEVA LISTA DE PLATOS BASE POR DEFECTO ACTUALIZADA */
         const platosBase = [
             { id: 1, nombre: "Falafel pita", precio: 22.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
             { id: 2, nombre: "Schnitzel pita", precio: 25.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
@@ -484,7 +442,7 @@
             { id: 18, nombre: "Lamb & beef shared plate", precio: 65.00, icono: "🥨", categoria: "SHARED PLATES" },
             { id: 19, nombre: "Schnitzel share plate", precio: 65.00, icono: "🥨", categoria: "SHARED PLATES" },
             { id: 20, nombre: "Falafel share plate", precio: 60.00, icono: "🥨", categoria: "SHARED PLATES" },
-            { id: 21, nombre: "Mixed plate", precio: 120.00, icono: "🥨", categoria: "SHARED PLATES" },
+            { id: 21, font: "🥨", nombre: "Mixed plate", precio: 120.00, icono: "🥨", categoria: "SHARED PLATES" },
             { id: 22, nombre: "Drink", precio: 6.00, icono: "🥨", categoria: "EXTRAS" },
             { id: 23, nombre: "Dessert", precio: 15.00, icono: "🥨", categoria: "EXTRAS" },
             { id: 24, nombre: "Ice cream", precio: 3.00, icono: "🥨", categoria: "EXTRAS" },
@@ -497,7 +455,7 @@
         let descuentoActual = 0;
         let porcentajeSeleccionado = 0;
         let categoriasReales = [...new Set(menu.map(p => p.categoria))];
-        let categoriaSeleccionada = categoriasReales[0] || "EXTRAS"; 
+        let categoriaSeleccionada = categoriasReales[0] || "STUFFED PITA BREAD"; 
         let tipoServicio = "Dine In";
 
         function guardarMenuEnMemoria() {
@@ -636,7 +594,6 @@
             actualizarInterfazPantalla(); renderizarOrdenesParqueadas();
         }
 
-        /* 🏷️ CONTROL DE DESCUENTOS TÁCTIL */
         function abrirModalDescuento() {
             if (carrito.length === 0) return alert("No items to discount.");
             let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
@@ -672,7 +629,6 @@
             actualizarInterfazPantalla(); cerrarModalDescuento();
         }
 
-        /* 🔀 CONTROL DE SPLIT TÁCTIL */
         function splitBill() {
             if (carrito.length === 0) return alert("Cart is empty.");
             let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0) - descuentoActual;
@@ -703,45 +659,104 @@
             document.getElementById('split-resultado-pago').innerText = `$${(subtotal / personas).toFixed(2)} NZD`;
         }
 
-        /* 🚀 IMPRESIÓN */
-        function finalizarYGenerarRecibos() {
+
+        /* 🛠️ SISTEMA DE IMPRESIÓN RECONSTRUIDO DESDE CERO (ANTI-HOJAS BLANCAS) */
+        function ejecutarImpresionEspecial(tipo) {
             if (carrito.length === 0) return alert("Please add products first.");
+
             let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
             let totalFinal = subtotal - descuentoActual; if (totalFinal < 0) totalFinal = 0;
-            
-            const mesaOCliente = document.getElementById('cliente').value || "Walk-in";
-            const ahora = new Date();
-            const fechaHoraStr = ahora.toLocaleDateString('en-NZ') + " " + ahora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            const contenedorCocinaItems = document.getElementById('cocina-items');
-            const contenedorClienteItems = document.getElementById('cliente-items');
-            contenedorCocinaItems.innerHTML = ''; contenedorClienteItems.innerHTML = '';
+            let gstCalculado = totalFinal / 7.6667;
 
+            const mesaRef = document.getElementById('cliente').value || "Walk-in";
+            const tiempo = new Date();
+            const fechaHoraStr = tiempo.toLocaleDateString('en-NZ') + " " + tiempo.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            // Generamos dinámicamente bloques HTML puros sin aplicarles reglas "none" que rompan la cola de impresión
+            let htmlResultadoInyeccion = "";
+
+            // 1. BLOQUE DE COCINA (Siempre se genera primero)
+            let claseCorteCocina = (tipo === 'ambos') ? 'corte-pagina-forzado' : '';
+            
+            let cocinaItemsHTML = "";
             carrito.forEach(item => {
-                const precioLinea = item.precio * item.cantidad;
-                contenedorCocinaItems.innerHTML += `<div style="text-align: left;">[ ] ${item.cantidad} x ${item.nombre}</div>`;
-                contenedorClienteItems.innerHTML += `<div class="print-linea-item"><span>${item.cantidad}x ${item.nombre}</span><span>$${precioLinea.toFixed(2)}</span></div>`;
+                cocinaItemsHTML += `<div style="text-align: left;">[ ] ${item.cantidad} x ${item.nombre}</div>`;
             });
 
-            if(descuentoActual > 0) {
-                document.getElementById('print-descuento-linea').style.display = 'block';
-                document.getElementById('cliente-descuento').innerText = `-$${descuentoActual.toFixed(2)}`;
-            } else { document.getElementById('print-descuento-linea').style.display = 'none'; }
+            htmlResultadoInyeccion += `
+                <div class="recibo-formato-termico ${claseCorteCocina}">
+                    <div class="print-header">
+                        <span class="print-title">*** KITCHEN ORDER ***</span><br>
+                        <span>${fechaHoraStr}</span>
+                    </div>
+                    <div style="font-size: 14px; margin-bottom: 8px;">
+                        <strong>MESA/NAME:</strong> ${mesaRef.toUpperCase()}<br>
+                        <strong>SERVICE:</strong> ${tipoServicio.toUpperCase()}
+                    </div>
+                    <div class="print-separador"></div>
+                    <div style="font-weight: bold;">${cocinaItemsHTML}</div>
+                    <div class="print-separador"></div>
+                </div>
+            `;
 
-            document.getElementById('cocina-fecha').innerText = fechaHoraStr;
-            document.getElementById('cocina-mesa').innerText = mesaOCliente.toUpperCase();
-            document.getElementById('cocina-servicio').innerText = tipoServicio.toUpperCase();
-            document.getElementById('cliente-fecha').innerText = fechaHoraStr;
-            document.getElementById('cliente-mesa').innerText = mesaOCliente;
-            document.getElementById('cliente-servicio').innerText = tipoServicio;
-            document.getElementById('cliente-total').innerText = `$${totalFinal.toFixed(2)}`;
-            document.getElementById('cliente-gst').innerText = `$${(totalFinal / 7.6667).toFixed(2)}`;
+            // 2. BLOQUE DE CLIENTE (Solo si se presionó "Kitchen + Invoice")
+            if (tipo === 'ambos') {
+                let clienteItemsHTML = "";
+                carrito.forEach(item => {
+                    let totalLinea = item.precio * item.cantidad;
+                    clienteItemsHTML += `
+                        <div class="print-linea-item">
+                            <span>${item.cantidad}x ${item.nombre}</span>
+                            <span>$${totalLinea.toFixed(2)}</span>
+                        </div>`;
+                });
 
-            window.print();
-            limpiarCarrito();
+                let lineaDescuentoHTML = "";
+                if (descuentoActual > 0) {
+                    lineaDescuentoHTML = `<div>Discount: -$${descuentoActual.toFixed(2)}</div>`;
+                }
+
+                htmlResultadoInyeccion += `
+                    <div class="recibo-formato-termico">
+                        <div class="print-header">
+                            <span class="print-title">KIWI BITES CAFE</span><br>
+                            <strong>GST Reg No: 12-345-678</strong><br>
+                            <span style="font-weight: bold; display:inline-block; margin-top:3px;">TAX INVOICE</span>
+                        </div>
+                        <div class="print-separador"></div>
+                        <div>
+                            <strong>Date:</strong> ${fechaHoraStr}<br>
+                            <strong>Table/Ref:</strong> ${mesaRef}<br>
+                            <strong>Type:</strong> ${tipoServicio}
+                        </div>
+                        <div class="print-separador"></div>
+                        <div>${clienteItemsHTML}</div>
+                        <div class="print-separador"></div>
+                        <div class="print-total-seccion">
+                            ${lineaDescuentoHTML}
+                            <div>TOTAL (GST Incl.): <strong>$${totalFinal.toFixed(2)}</strong></div>
+                            <div style="font-size: 11px;">Includes GST (15%): $${gstCalculado.toFixed(2)}</div>
+                        </div>
+                        <div class="print-separador"></div>
+                        <div style="text-align: center; font-weight: bold; margin-top: 5px;">Thank you! / Ngā mihi nui</div>
+                    </div>
+                `;
+            }
+
+            // Inyectamos el HTML directamente en el contenedor limpio y visible para el spooler de Windows/Android
+            const printZone = document.getElementById('contenedor-impresion-oculto');
+            printZone.innerHTML = htmlResultadoInyeccion;
+
+            // Retardo mínimo de render para evitar hojas blancas en Chrome/Edge
+            setTimeout(() => {
+                window.print();
+                printZone.innerHTML = ""; // Limpiamos la zona de impresión
+                limpiarCarrito();        // Vaciamos el POS para la siguiente orden
+            }, 150);
         }
 
-        /* ADMIN */
+
+        /* ADMIN CONTROLS */
         function abrirPanelAdmin() { document.getElementById('modalAdmin').style.display = 'flex'; renderizarTablaAdmin(); }
         function cerrarPanelAdmin() { document.getElementById('modalAdmin').style.display = 'none'; renderizarCategorias(); renderizarMenu(); }
         function renderizarTablaAdmin() {
@@ -760,7 +775,7 @@
         }
         function eliminarItemMenu(id) { if(confirm("Delete?")) { menu = menu.filter(p => p.id !== id); guardarMenuEnMemoria(); renderizarTablaAdmin(); } }
 
-        /* TECLADO */
+        /* VIRTUAL KEYBOARD CONTROLS */
         let inputActivoActual = null;
         document.addEventListener('focusin', function(e) {
             if (e.target.tagName === 'INPUT') { inputActivoActual = e.target; document.getElementById('tecladoVirtual').classList.add('activo'); }
@@ -772,8 +787,7 @@
             if (!e.target.closest('input') && !e.target.closest('.teclado-virtual') && !e.target.closest('.tarjeta-producto') && !e.target.closest('button')) { ocultarTecladoVirtual(); }
         });
 
-        /* INICIALIZAR EL PROGRAMA */
-        // Si hay datos viejos guardados en el navegador con categorías viejas, limpiamos la memoria una vez para forzar el nuevo menú.
+        /* CORE INITIALIZATION */
         if (!localStorage.getItem('pos_menu_v2_loaded')) {
             menu = platosBase;
             localStorage.setItem('pos_menu_data', JSON.stringify(platosBase));
