@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aula's Kitchen POS - Menu Manager</title>
+    <title>Paolonet Restaurant POS - Menu Manager</title>
     <style>
         :root {
             --bg-principal: #f8f9fa;
@@ -66,7 +66,7 @@
             padding: 14px 15px;
             border-radius: 10px;
             font-weight: 700; 
-            font-size: 18px;  /* Letras grandes para las categorías */
+            font-size: 18px;
             cursor: pointer;
             text-align: left;
             transition: all 0.2s;
@@ -109,18 +109,10 @@
             width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;
         }
 
-        .tarjeta-producto .nombre { 
-            font-weight: 700; 
-            font-size: 25px; /* Letras grandes para platos */
-            margin-bottom: 8px; 
-        }
-        .tarjeta-producto .precio { 
-            font-weight: 800; 
-            color: var(--primario); 
-            font-size: 20px; /* Precios grandes y claros */
-        }
+        .tarjeta-producto .nombre { font-weight: 700; font-size: 18px; margin-bottom: 8px; }
+        .tarjeta-producto .precio { font-weight: 800; color: var(--primario); font-size: 20px; }
 
-        /* 3. TICKET SECCIÓN (VISTA EN PANTALLA) */
+        /* 3. TICKET SECCIÓN */
         .ticket-section { background: var(--tarjeta-bg); border-left: 1px solid var(--borde); display: flex; flex-direction: column; }
         .ticket-header { padding: 20px; border-bottom: 1px solid var(--borde); }
         .ticket-header h2 { margin: 0 0 15px 0; font-size: 18px; display: flex; align-items: center; gap: 10px; }
@@ -142,7 +134,7 @@
         .fila-total { display: flex; justify-content: space-between; font-size: 22px; font-weight: 700; margin-bottom: 15px; }
         .btn-cobrar { width: 100%; background: var(--primario); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; }
 
-        /* VENTANA MODAL (PANEL ADMINISTRADOR DE MENÚ) */
+        /* VENTANAS MODALES GENERALES */
         .modal-admin {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center;
@@ -160,7 +152,47 @@
         .tabla-items-admin th, .tabla-items-admin td { padding: 10px; text-align: left; border-bottom: 1px solid var(--borde); font-size: 14px; }
         .btn-borrar-item { background: var(--peligro); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
 
-        /* DISEÑO DEL TECLADO VIRTUAL DESPLEGABLE TÁCTIL */
+        /* 🆕 MODAL DASHBOARD DE DESCUENTOS */
+        .modal-descuento-contenido {
+            background: white; padding: 25px; border-radius: 16px; width: 380px; text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid var(--borde);
+        }
+        .modal-descuento-contenido h2 { margin: 0 0 5px 0; font-size: 20px; color: #1a202c; }
+        .subtotal-info { font-size: 15px; color: #718096; margin-bottom: 20px; }
+        .grid-descuentos-fijos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .btn-descuento-opcion { background: var(--gris-claro); border: 2px solid transparent; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; color: var(--texto); }
+        .btn-descuento-opcion:active { background: #cbd5e0; }
+        .btn-descuento-opcion.seleccionado { background: #ebf8ff; border-color: #3182ce; color: #2b6cb0; }
+        
+        .input-contenedor-nzd { position: relative; margin-bottom: 20px; }
+        .input-contenedor-nzd span { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 20px; font-weight: bold; color: #a0aec0; }
+        .input-descuento-nzd { width: 100%; padding: 14px 14px 14px 35px; border: 2px solid var(--borde); border-radius: 10px; font-size: 20px; font-weight: bold; box-sizing: border-box; outline: none; }
+        .input-descuento-nzd:focus { border-color: var(--primario); }
+        
+        .fila-botones-modal { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-modal-accion { border: none; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; }
+        .btn-modal-accion.aplicar { background: var(--primario); color: white; }
+        .btn-modal-accion.cancelar { background: #718096; color: white; }
+
+        /* 🆕 MODAL DASHBOARD DE SPLIT */
+        .modal-split-contenido {
+            background: white; padding: 25px; border-radius: 16px; width: 380px; text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid var(--borde);
+        }
+        .modal-split-contenido h2 { margin: 0 0 5px 0; font-size: 20px; color: #1a202c; }
+        .split-totales-info { background: var(--bg-principal); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .split-totales-info .monto-grande { font-size: 28px; font-weight: 800; color: var(--primario); margin: 5px 0; }
+
+        .control-personas { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        .btn-split-contador { background: var(--gris-claro); border: none; width: 50px; height: 50px; border-radius: 10px; font-size: 24px; font-weight: bold; cursor: pointer; color: var(--texto); }
+        .btn-split-contador:active { background: #cbd5e0; }
+        .input-split-personas { width: 70px; text-align: center; border: 2px solid var(--borde); border-radius: 10px; font-size: 22px; font-weight: bold; padding: 8px 0; outline: none; }
+        .input-split-personas:focus { border-color: #805ad5; }
+
+        .resultado-split { font-size: 16px; font-weight: 600; color: #4a5568; margin-bottom: 25px; padding: 10px; border-radius: 8px; background: #faf5ff; border: 1px dashed #d6bcfa; }
+        .resultado-split strong { font-size: 22px; color: #805ad5; }
+
+        /* TECLADO VIRTUAL DESPLEGABLE TÁCTIL */
         .teclado-virtual {
             position: fixed; bottom: -320px; left: 0; width: 100%; background: #cbd5e0;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.2); padding: 12px; box-sizing: border-box;
@@ -178,92 +210,23 @@
         .teclado-tecla.espacio { max-width: 350px; }
         .teclado-tecla.accion { background: #47a973; color: white; max-width: 100px; }
 
-        /* AREA OCULTA PARA TICKETERA RW80L */
-        #area-impresion-final { display: none; }
-
+        /* AREA DE IMPRESIÓN CONFIGURADA PARA 80MM SIN DESPERDICIO */
         @media print {
-    /* 1. Forzamos al navegador a usar el tamaño exacto del rollo de ticket */
-    @page {
-        size: 80mm auto; /* Ancho de 80mm y largo automático según los platos */
-        margin: 0mm;    /* Eliminamos márgenes para que no desperdicie papel */
-    }
-
-    /* Ocultamos absolutamente todo lo que está en la pantalla de la tablet */
-    body * { 
-        display: none !important; 
-    }
-
-    /* Mostramos únicamente el bloque de impresión */
-    #area-impresion-final, #area-impresion-final * { 
-        display: block !important; 
-    }
-
-    /* Configuramos el contenedor para que use el ancho real del papel */
-    #area-impresion-final { 
-        width: 72mm; /* Dejamos un pequeño margen de seguridad de 4mm a cada lado */
-        margin: 0 auto; 
-        padding: 5mm 3mm; /* Margen superior e inferior para el corte */
-        font-family: 'Courier New', Courier, monospace; 
-        color: #000; 
-        font-size: 13px; /* Tamaño de letra compacto y legible */
-        line-height: 1.3;
-    }
-
-    /* Forzamos que el recibo de cocina y cliente salgan juntos o separados limpiamente */
-    .recibo-cocina { 
-        width: 100%; 
-        border-bottom: 2px dashed #000; 
-        padding-bottom: 15px; 
-        margin-bottom: 15px; 
-    }
-    
-    .recibo-cliente { 
-        width: 100%; 
-        padding-top: 5px; 
-    }
-
-    .print-header { text-align: center; margin-bottom: 10px; }
-    .print-title { font-size: 16px; font-weight: bold; text-transform: uppercase; }
-    .print-separador { border-top: 1px dashed #000; margin: 6px 0; display: block !important; height: 1px; }
-    .print-linea-item { display: flex !important; justify-content: space-between; margin-bottom: 4px; }
-    .print-total-seccion { text-align: right; margin-top: 8px; font-size: 14px; }
-}
-.modal-descuento-contenido {
-    background: white; padding: 25px; border-radius: 16px; width: 380px; text-align: center;
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid var(--borde);
-}
-.modal-descuento-contenido h2 { margin: 0 0 5px 0; font-size: 20px; color: #1a202c; }
-.subtotal-info { font-size: 15px; color: #718096; margin-bottom: 20px; }
-.grid-descuentos-fijos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-.btn-descuento-opcion { background: var(--gris-claro); border: 2px solid transparent; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; color: var(--texto); }
-.btn-descuento-opcion:active { background: #cbd5e0; }
-.btn-descuento-opcion.seleccionado { background: #ebf8ff; border-color: #3182ce; color: #2b6cb0; }
-
-.input-contenedor-nzd { position: relative; margin-bottom: 20px; }
-.input-contenedor-nzd span { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 20px; font-weight: bold; color: #a0aec0; }
-.input-descuento-nzd { width: 100%; padding: 14px 14px 14px 35px; border: 2px solid var(--borde); border-radius: 10px; font-size: 20px; font-weight: bold; box-sizing: border-box; outline: none; }
-.input-descuento-nzd:focus { border-color: var(--primario); }
-
-.fila-botones-modal { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.btn-modal-accion { border: none; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; }
-.btn-modal-accion.aplicar { background: var(--primario); color: white; }
-.btn-modal-accion.cancelar { background: #718096; color: white; }
-		.modal-split-contenido {
-    background: white; padding: 25px; border-radius: 16px; width: 380px; text-align: center;
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid var(--borde);
-}
-.modal-split-contenido h2 { margin: 0 0 5px 0; font-size: 20px; color: #1a202c; }
-.split-totales-info { background: var(--bg-principal); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-.split-totales-info .monto-grande { font-size: 28px; font-weight: 800; color: var(--primario); margin: 5px 0; }
-
-.control-personas { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 25px; }
-.btn-split-contador { background: var(--gris-claro); border: none; width: 50px; height: 50px; border-radius: 10px; font-size: 24px; font-weight: bold; cursor: pointer; color: var(--texto); }
-.btn-split-contador:active { background: #cbd5e0; }
-.input-split-personas { width: 70px; text-align: center; border: 2px solid var(--borde); border-radius: 10px; font-size: 22px; font-weight: bold; padding: 8px 0; outline: none; }
-.input-split-personas:focus { border-color: #805ad5; }
-
-.resultado-split { font-size: 16px; font-weight: 600; color: #4a5568; margin-bottom: 25px; padding: 10px; border-radius: 8px; background: #faf5ff; border: 1px dashed #d6bcfa; }
-.resultado-split strong { font-size: 22px; color: #805ad5; }
+            @page { size: 80mm auto; margin: 0mm; }
+            body * { display: none !important; }
+            #area-impresion-final, #area-impresion-final * { display: block !important; }
+            #area-impresion-final { 
+                width: 72mm; margin: 0 auto; padding: 5mm 3mm; 
+                font-family: 'Courier New', Courier, monospace; color: #000; font-size: 13px; line-height: 1.3;
+            }
+            .recibo-cocina { width: 100%; border-bottom: 2px dashed #000; padding-bottom: 15px; margin-bottom: 15px; }
+            .recibo-cliente { width: 100%; padding-top: 5px; }
+            .print-header { text-align: center; margin-bottom: 10px; }
+            .print-title { font-size: 16px; font-weight: bold; text-transform: uppercase; }
+            .print-separador { border-top: 1px dashed #000; margin: 6px 0; display: block !important; height: 1px; }
+            .print-linea-item { display: flex !important; justify-content: space-between; margin-bottom: 4px; }
+            .print-total-seccion { text-align: right; margin-top: 8px; font-size: 14px; }
+        }
     </style>
 </head>
 <body>
@@ -302,7 +265,7 @@
                     <button onclick="limpiarCarrito()" style="background:#e53e3e; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🗑️ Clear</button>
                     <button onclick="parkOrder()" style="background:#dd6b20; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">⏳ Park</button>
                     <button onclick="abrirModalDescuento()" style="background:#3182ce; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🏷️ Disc.</button>
-                   <button onclick="splitBill()" style="background:#805ad5; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🔀 Split</button>
+                    <button onclick="splitBill()" style="background:#805ad5; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🔀 Split</button>
                 </div>
 
                 <div class="fila-total">
@@ -319,82 +282,66 @@
             <h2>⚙️ Menu Manager Dashboard</h2>
             <h3>Add New Item</h3>
             <div class="formulario-item">
-                <input type="text" id="add-nombre" placeholder="Item Name (e.g., Stuffed Pita)">
-                <input type="number" id="add-precio" step="0.01" placeholder="Price NZD (e.g., 16.00)">
+                <input type="text" id="add-nombre" placeholder="Item Name">
+                <input type="number" id="add-precio" step="0.01" placeholder="Price NZD">
                 <input type="text" id="add-icono" placeholder="Emoji (e.g., 🥙)">
-                <input type="text" id="add-categoria" placeholder="Category (e.g., Extras, Wrap, Plates)">
+                <input type="text" id="add-categoria" placeholder="Category">
                 <button onclick="guardarNuevoItem()">➕ Add to Menu</button>
             </div>
-
             <h3>Current Dishes</h3>
             <table class="tabla-items-admin">
                 <thead>
-                    <tr>
-                        <th>Icon</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th>Price</th>
-                        <th>Action</th>
-                    </tr>
+                    <tr><th>Icon</th><th>Name</th><th>Category</th><th>Price</th><th>Action</th></tr>
                 </thead>
                 <tbody id="tabla-items-cuerpo"></tbody>
             </table>
             <br>
-            <button class="btn-ajustes" style="width: 100%; background: var(--texto); color: white;" onclick="cerrarPanelAdmin()">Close & Save changes</button>
+            <button class="btn-ajustes" style="width: 100%; background: var(--texto); color: white;" onclick="cerrarPanelAdmin()">Close & Save</button>
         </div>
     </div>
-<div class="modal-admin" id="modalDescuento">
-    <div class="modal-descuento-contenido">
-        <h2>🏷️ Order Discount</h2>
-        <div class="subtotal-info" id="desc-subtotal-info">Current Subtotal: $0.00</div>
-        
-        <div class="grid-descuentos-fijos">
-            <button class="btn-descuento-opcion" id="btn-desc-10" onclick="seleccionarDescuentoPorcentaje(10)">10% OFF</button>
-            <button class="btn-descuento-opcion" id="btn-desc-20" onclick="seleccionarDescuentoPorcentaje(20)">20% OFF</button>
-        </div>
-		<div class="modal-admin" id="modalDescuento">
+
+    <div class="modal-admin" id="modalDescuento">
         <div class="modal-descuento-contenido">
-            ... todo el contenido del descuento ...
+            <h2>🏷️ Order Discount</h2>
+            <div class="subtotal-info" id="desc-subtotal-info">Current Subtotal: $0.00</div>
+            <div class="grid-descuentos-fijos">
+                <button class="btn-descuento-opcion" id="btn-desc-10" onclick="seleccionarDescuentoPorcentaje(10)">10% OFF</button>
+                <button class="btn-descuento-opcion" id="btn-desc-20" onclick="seleccionarDescuentoPorcentaje(20)">20% OFF</button>
+            </div>
+            <div class="input-contenedor-nzd">
+                <span>$</span>
+                <input type="number" id="input-monto-personalizado" class="input-descuento-nzd" placeholder="0.00" step="0.01" oninput="limpiarBotonesPorcentaje()">
+            </div>
+            <div class="fila-botones-modal">
+                <button class="btn-modal-accion cancelar" onclick="cerrarModalDescuento()">Cancel</button>
+                <button class="btn-modal-accion aplicar" onclick="procesarAplicarDescuento()">Apply</button>
+            </div>
         </div>
-    </div> <div class="modal-admin" id="modalSplit">
+    </div>
+
+    <div class="modal-admin" id="modalSplit">
         <div class="modal-split-contenido">
             <h2>🔀 Split Bill</h2>
-            
             <div class="split-totales-info">
                 <div>Order Total to Split:</div>
                 <div class="monto-grande" id="split-monto-total">$0.00</div>
             </div>
-            
             <div style="font-size: 15px; margin-bottom: 10px; font-weight: 600;">Number of People:</div>
             <div class="control-personas">
                 <button class="btn-split-contador" onclick="modificarPersonasSplit(-1)">-</button>
                 <input type="number" id="input-split-personas" class="input-split-personas" value="2" min="2" oninput="calcularSplitDinamico()">
                 <button class="btn-split-contador" onclick="modificarPersonasSplit(1)">+</button>
             </div>
-            
             <div class="resultado-split">
                 Each person pays:<br>
                 <strong id="split-resultado-pago">$0.00 NZD</strong>
             </div>
-            
             <div class="fila-botones-modal">
                 <button class="btn-modal-accion cancelar" onclick="cerrarModalSplit()">Close</button>
                 <button class="btn-modal-accion aplicar" style="background:#805ad5;" onclick="cerrarModalSplit()">Done ✓</button>
             </div>
         </div>
     </div>
-        
-        <div class="input-contenedor-nzd">
-            <span>$</span>
-            <input type="number" id="input-monto-personalizado" class="input-descuento-nzd" placeholder="0.00" step="0.01" oninput="limpiarBotonesPorcentaje()">
-        </div>
-        
-        <div class="fila-botones-modal">
-            <button class="btn-modal-accion cancelar" onclick="cerrarModalDescuento()">Cancel</button>
-            <button class="btn-modal-accion aplicar" onclick="procesarAplicarDescuento()">Apply Discount</button>
-        </div>
-    </div>
-</div>
 
     <div id="tecladoVirtual" class="teclado-virtual">
         <div class="teclado-fila">
@@ -455,21 +402,19 @@
                 <span class="print-title">*** KITCHEN ORDER ***</span><br>
                 <span id="cocina-fecha"></span>
             </div>
-            <div style="font-size: 15px; margin-bottom: 10px;">
-                <strong>MESA/NAME:</strong> <span id="cocina-mesa" style="font-size: 17px; font-weight: bold;"></span><br>
+            <div style="font-size: 14px; margin-bottom: 8px;">
+                <strong>MESA/NAME:</strong> <span id="cocina-mesa" style="font-weight: bold;"></span><br>
                 <strong>SERVICE:</strong> <span id="cocina-servicio"></span>
             </div>
             <div class="print-separador"></div>
-            <div id="cocina-items" style="font-size: 16px; font-weight: bold;"></div>
+            <div id="cocina-items" style="font-weight: bold;"></div>
             <div class="print-separador"></div>
-            <div style="text-align: center; font-size: 11px;">[ Kitchen Copy ]</div>
         </div>
-
         <div class="recibo-cliente">
             <div class="print-header">
-                <span class="print-title">AULA'S KITCHEN</span><br>
-                <span>269 Parnell Road, Auckland</span><br>
-                <span style="font-size: 16px; font-weight: bold; display:inline-block; margin-top:5px;">TAX INVOICE</span>
+                <span class="print-title">KIWI BITES CAFE</span><br>
+                <strong>GST Reg No: 12-345-678</strong><br>
+                <span style="font-weight: bold; display:inline-block; margin-top:3px;">TAX INVOICE</span>
             </div>
             <div class="print-separador"></div>
             <div>
@@ -481,19 +426,16 @@
             <div id="cliente-items"></div>
             <div class="print-separador"></div>
             <div class="print-total-seccion">
-                <div id="print-descuento-linea" style="display:none; color:#000;">Discount: <span id="cliente-descuento"></span></div>
-                <div>TOTAL (GST Incl.): <strong id="cliente-total" style="font-size: 16px;"></strong></div>
-                <div style="font-size: 12px; margin-top: 4px;">Includes GST (15%): <span id="cliente-gst"></span></div>
+                <div id="print-descuento-linea" style="display:none;">Discount: <span id="cliente-descuento"></span></div>
+                <div>TOTAL (GST Incl.): <strong id="cliente-total" style="font-size: 15px;"></strong></div>
+                <div style="font-size: 11px;">Includes GST (15%): <span id="cliente-gst"></span></div>
             </div>
             <div class="print-separador"></div>
-            <div style="text-align: center; font-size: 13px; font-weight: bold; margin-top: 10px;">
-                Thank you! / Ngā mihi nui
-            </div>
+            <div style="text-align: center; font-weight: bold; margin-top: 5px;">Thank you! / Ngā mihi nui</div>
         </div>
     </div>
 
     <script>
-        // BASE DE DATOS INICIAL DE PRODUCTOS
         const platosBase = [
             { id: 1, nombre: "Falafel pita", precio: 22.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
 		{ id: 2, nombre: "Schnitzel pita", precio: 25.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
@@ -520,16 +462,17 @@
 { id: 23, nombre: "Dessert", precio: 15.00, icono: "🥨", categoria: "EXTRAS" },
 { id: 24, nombre: "Ice cream", precio: 3.00, icono: "🥨", categoria: "EXTRAS" },
 { id: 25, nombre: "Pita bread", precio: 2.00, icono: "🥨", categoria: "EXTRAS" }
+
         ];
 
         let menu = JSON.parse(localStorage.getItem('pos_menu_data')) || platosBase;
         let carrito = [];
         let ordenesParqueadas = [];
         let descuentoActual = 0;
+        let porcentajeSeleccionado = 0;
         let categoriasReales = [...new Set(menu.map(p => p.categoria))];
         let categoriaSeleccionada = categoriasReales[0] || "Extras"; 
         let tipoServicio = "Dine In";
-	let porcentajeSeleccionado = 0;
 
         function guardarMenuEnMemoria() {
             localStorage.setItem('pos_menu_data', JSON.stringify(menu));
@@ -554,8 +497,6 @@
         function renderizarMenu() {
             const grid = document.getElementById('grid-productos');
             grid.innerHTML = '';
-            
-            // 1. DIBUJAMOS LOS PLATOS REGISTRADOS NORMALES
             const productosFiltrados = menu.filter(p => p.categoria === categoriaSeleccionada);
             productosFiltrados.forEach(p => {
                 grid.innerHTML += `
@@ -565,8 +506,6 @@
                         <div class="precio">$${parseFloat(p.precio).toFixed(2)}</div>
                     </div>`;
             });
-
-            // 2. MODIFICACIÓN EXTRAS: BOTÓN COMODÍN AL FINAL DE LA LISTA
             if (categoriaSeleccionada.toLowerCase() === "extras") {
                 grid.innerHTML += `
                     <div class="tarjeta-producto" onclick="agregarPlatoEspecial()" style="border: 2px dashed #3182ce; background: #ebf8ff;">
@@ -604,10 +543,8 @@
             const contenedor = document.getElementById('lista-articulos-pantalla');
             contenedor.innerHTML = '';
             let subtotal = 0;
-
             carrito.forEach(item => {
-                const precioLinea = item.precio * item.cantidad;
-                subtotal += precioLinea;
+                subtotal += (item.precio * item.cantidad);
                 contenedor.innerHTML += `
                     <div class="item-linea">
                         <div class="item-detalles">
@@ -621,10 +558,8 @@
                         </div>
                     </div>`;
             });
-
             let totalFinal = subtotal - descuentoActual;
             if(totalFinal < 0) totalFinal = 0;
-
             if (descuentoActual > 0) {
                 document.getElementById('total-pago').innerHTML = `<span style="font-size:14px; color:#e53e3e; font-weight:normal;">(-$${descuentoActual.toFixed(2)})</span> $${totalFinal.toFixed(2)}`;
             } else {
@@ -633,189 +568,128 @@
         }
 
         function agregarPlatoEspecial() {
-            const nombreEspecial = prompt("Enter custom extra name:\n(e.g., Extra Avocado / Less Spicy)");
+            const nombreEspecial = prompt("Enter custom extra name:");
             if (!nombreEspecial) return;
-
-            const precioInput = prompt(`Enter price for "${nombreEspecial}" (NZD):`, "0.00");
-            const precioEspecial = parseFloat(precioInput);
-            if (isNaN(precioEspecial)) return alert("Invalid price.");
-
-            const idUnico = Date.now(); 
-            carrito.push({ id: idUnico, nombre: `*EXT* ${nombreEspecial}`, precio: precioEspecial, cantidad: 1 });
+            const precioEspecial = parseFloat(prompt(`Enter price for "${nombreEspecial}":`, "0.00"));
+            if (isNaN(precioEspecial)) return;
+            carrito.push({ id: Date.now(), nombre: `*EXT* ${nombreEspecial}`, precio: precioEspecial, cantidad: 1 });
             actualizarInterfazPantalla();
         }
 
-        /* 🛒 LOGICA DE CONTROL DE LA BARRA DE ACCIONES (4 BOTONES) */
-        
-        // ACTUALIZACIÓN SOLICITADA: CLEAR INSTANTÁNEO SIN PREGUNTAS
         function limpiarCarrito() {
-            carrito = [];
-            descuentoActual = 0;
+            carrito = []; descuentoActual = 0;
             document.getElementById('cliente').value = '';
             actualizarInterfazPantalla();
         }
 
         function parkOrder() {
-            if (carrito.length === 0) return alert("Add items first before parking.");
+            if (carrito.length === 0) return alert("Add items first.");
             const cliente = document.getElementById('cliente').value || `Table ${ordenesParqueadas.length + 1}`;
-            
             ordenesParqueadas.push({ id: Date.now(), cliente, items: [...carrito], tipoServicio });
-            carrito = [];
-            descuentoActual = 0;
-            document.getElementById('cliente').value = '';
-            
-            actualizarInterfazPantalla();
-            renderizarOrdenesParqueadas();
-            alert(`Order parked for: ${cliente}`);
+            carrito = []; descuentoActual = 0; document.getElementById('cliente').value = '';
+            actualizarInterfazPantalla(); renderizarOrdenesParqueadas();
         }
 
         function renderizarOrdenesParqueadas() {
             let contenedor = document.getElementById('lista-parked');
             if (!contenedor) {
-                const secciónTicket = document.querySelector('.ticket-header');
-                contenedor = document.createElement('div');
-                contenedor.id = 'lista-parked';
+                contenedor = document.createElement('div'); contenedor.id = 'lista-parked';
                 contenedor.style = "display: flex; gap: 6px; padding: 10px; overflow-x: auto; background: #feebc8; border-bottom: 1px solid #fbd38d;";
-                secciónTicket.after(contenedor);
+                document.querySelector('.ticket-header').after(contenedor);
             }
             contenedor.innerHTML = ordenesParqueadas.length === 0 ? '<span style="font-size:12px; color:#c05621;">No parked orders</span>' : '';
             ordenesParqueadas.forEach(orden => {
-                contenedor.innerHTML += `<button onclick="recuperarOrden(${orden.id})" style="background:#dd6b20; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; font-size:13px; cursor:pointer; white-space:nowrap;">⏳ ${orden.cliente}</button>`;
+                contenedor.innerHTML += `<button onclick="recuperarOrden(${orden.id})" style="background:#dd6b20; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer;">⏳ ${orden.cliente}</button>`;
             });
         }
 
         function recuperarOrden(id) {
-            if (carrito.length > 0 && !confirm("Overwrite current items on screen?")) return;
-            const orden = ordenesParqueadas.find(o => o.id === id);
-            if (!orden) return;
-
-            carrito = [...orden.items];
-            document.getElementById('cliente').value = orden.cliente;
-            cambiarServicio(orden.tipoServicio);
-            ordenesParqueadas = ordenesParqueadas.filter(o => o.id !== id);
-            
-            actualizarInterfazPantalla();
-            renderizarOrdenesParqueadas();
+            const orden = ordenesParqueadas.find(o => o.id === id); if (!orden) return;
+            carrito = [...orden.items]; document.getElementById('cliente').value = orden.cliente;
+            cambiarServicio(orden.tipoServicio); ordenesParqueadas = ordenesParqueadas.filter(o => o.id !== id);
+            actualizarInterfazPantalla(); renderizarOrdenesParqueadas();
         }
-function abrirModalDescuento() {
-    if (carrito.length === 0) return alert("No items to discount.");
-    
-    let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-    document.getElementById('desc-subtotal-info').innerText = `Current Subtotal: $${subtotal.toFixed(2)} NZD`;
-    
-    porcentajeSeleccionado = 0;
-    document.getElementById('input-monto-personalizado').value = '';
-    document.getElementById('btn-desc-10').classList.remove('seleccionado');
-    document.getElementById('btn-desc-20').classList.remove('seleccionado');
-    
-    document.getElementById('modalDescuento').style.display = 'flex';
-}
 
-function cerrarModalDescuento() {
-    document.getElementById('modalDescuento').style.display = 'none';
-    ocultarTecladoVirtual();
-}
+        /* 🏷️ CONTROL DE DESCUENTOS TÁCTIL */
+        function abrirModalDescuento() {
+            if (carrito.length === 0) return alert("No items to discount.");
+            let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+            document.getElementById('desc-subtotal-info').innerText = `Current Subtotal: $${subtotal.toFixed(2)} NZD`;
+            porcentajeSeleccionado = 0; document.getElementById('input-monto-personalizado').value = '';
+            document.getElementById('btn-desc-10').classList.remove('seleccionado');
+            document.getElementById('btn-desc-20').classList.remove('seleccionado');
+            document.getElementById('modalDescuento').style.display = 'flex';
+        }
 
-function seleccionarDescuentoPorcentaje(porcentaje) {
-    porcentajeSeleccionado = porcentaje;
-    document.getElementById('input-monto-personalizado').value = ''; 
-    
-    document.getElementById('btn-desc-10').classList.remove('seleccionado');
-    document.getElementById('btn-desc-20').classList.remove('seleccionado');
-    
-    if(porcentaje === 10) document.getElementById('btn-desc-10').classList.add('seleccionado');
-    if(porcentaje === 20) document.getElementById('btn-desc-20').classList.add('seleccionado');
-}
+        function cerrarModalDescuento() { document.getElementById('modalDescuento').style.display = 'none'; ocultarTecladoVirtual(); }
+        
+        function seleccionarDescuentoPorcentaje(porcentaje) {
+            porcentajeSeleccionado = porcentaje; document.getElementById('input-monto-personalizado').value = '';
+            document.getElementById('btn-desc-10').classList.remove('seleccionado');
+            document.getElementById('btn-desc-20').classList.remove('seleccionado');
+            if(porcentaje === 10) document.getElementById('btn-desc-10').classList.add('seleccionado');
+            if(porcentaje === 20) document.getElementById('btn-desc-20').classList.add('seleccionado');
+        }
 
-function limpiarBotonesPorcentaje() {
-    porcentajeSeleccionado = 0;
-    document.getElementById('btn-desc-10').classList.remove('seleccionado');
-    document.getElementById('btn-desc-20').classList.remove('seleccionado');
-}
+        function limpiarBotonesPorcentaje() {
+            porcentajeSeleccionado = 0;
+            document.getElementById('btn-desc-10').classList.remove('seleccionado');
+            document.getElementById('btn-desc-20').classList.remove('seleccionado');
+        }
 
-function procesarAplicarDescuento() {
-    let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-    let montoPersonalizado = parseFloat(document.getElementById('input-monto-personalizado').value);
+        function procesarAplicarDescuento() {
+            let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+            let montoPersonalizado = parseFloat(document.getElementById('input-monto-personalizado').value);
+            if (porcentajeSeleccionado > 0) { descuentoActual = subtotal * (porcentajeSeleccionado / 100); } 
+            else if (!isNaN(montoPersonalizado) && montoPersonalizado > 0) { descuentoActual = montoPersonalizado; } 
+            else { descuentoActual = 0; }
+            actualizarInterfazPantalla(); cerrarModalDescuento();
+        }
 
-    if (porcentajeSeleccionado > 0) {
-        descuentoActual = subtotal * (porcentajeSeleccionado / 100);
-    } else if (!isNaN(montoPersonalizado) && montoPersonalizado > 0) {
-        descuentoActual = montoPersonalizado;
-    } else {
-        descuentoActual = 0; 
-    }
-
-    actualizarInterfazPantalla();
-    cerrarModalDescuento();
-}
+        /* 🔀 CONTROL DE SPLIT TÁCTIL */
         function splitBill() {
-    if (carrito.length === 0) return alert("Cart is empty.");
-    let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0) - descuentoActual;
-    if (subtotal <= 0) return;
+            if (carrito.length === 0) return alert("Cart is empty.");
+            let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0) - descuentoActual;
+            if (subtotal <= 0) return;
+            document.getElementById('split-monto-total').innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById('input-split-personas').value = 2;
+            document.getElementById('modalSplit').style.display = 'flex';
+            calcularSplitDinamico();
+        }
 
-    // Colocamos el total actual en el panel
-    document.getElementById('split-monto-total').innerText = `$${subtotal.toFixed(2)}`;
-    // Reiniciamos el contador a 2 personas por defecto
-    document.getElementById('input-split-personas').value = 2;
-    
-    document.getElementById('modalSplit').style.display = 'flex';
-    calcularSplitDinamico();
-}
+        function cerrarModalSplit() { document.getElementById('modalSplit').style.display = 'none'; ocultarTecladoVirtual(); }
 
-function cerrarModalSplit() {
-    document.getElementById('modalSplit').style.display = 'none';
-    ocultarTecladoVirtual();
-}
+        function modificarPersonasSplit(cambio) {
+            let input = document.getElementById('input-split-personas');
+            let valorActual = parseInt(input.value) || 2;
+            let nuevoValor = valorActual + cambio;
+            if (nuevoValor >= 2) { input.value = nuevoValor; calcularSplitDinamico(); }
+        }
 
-function modificarPersonasSplit(cambio) {
-    let input = document.getElementById('input-split-personas');
-    let valorActual = parseInt(input.value) || 2;
-    let nuevoValor = valorActual + cambio;
-    
-    if (nuevoValor >= 2) { // El mínimo para dividir una cuenta siempre es 2 personas
-        input.value = nuevoValor;
-        calcularSplitDinamico();
-    }
-}
+        function calcularSplitDinamico() {
+            let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0) - descuentoActual;
+            if (subtotal < 0) subtotal = 0;
+            let personas = parseInt(document.getElementById('input-split-personas').value);
+            if (isNaN(personas) || personas < 2) {
+                document.getElementById('split-resultado-pago').innerText = "$0.00 NZD";
+                return;
+            }
+            document.getElementById('split-resultado-pago').innerText = `$${(subtotal / personas).toFixed(2)} NZD`;
+        }
 
-function calcularSplitDinamico() {
-    let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0) - descuentoActual;
-    if (subtotal < 0) subtotal = 0;
-    
-    let personas = parseInt(document.getElementById('input-split-personas').value);
-    
-    if (isNaN(personas) || personas < 2) {
-        document.getElementById('split-resultado-pago').innerText = "$0.00 NZD";
-        return;
-    }
-    
-    let division = subtotal / personas;
-    document.getElementById('split-resultado-pago').innerText = `$${division.toFixed(2)} NZD`;
-}
-        /* 🚀 FUNCIÓN INTEGRADA CON SIMULACIÓN DE ENVÍO DE COBRO AUTOMÁTICO AL POS EFTPOS */
+        /* 🚀 IMPRESIÓN */
         function finalizarYGenerarRecibos() {
             if (carrito.length === 0) return alert("Please add products first.");
-            
             let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-            let totalFinal = subtotal - descuentoActual;
-            if (totalFinal < 0) totalFinal = 0;
-
-            // PREPARACIÓN ESTRUCTURAL: Simulación de transmisión de datos hacia la terminal de pago
-            console.log(`📡 [EFTPOS INTEGRATION] Moviendo $${totalFinal.toFixed(2)} NZD al Pinpad...`);
+            let totalFinal = subtotal - descuentoActual; if (totalFinal < 0) totalFinal = 0;
             
-            // Pasamos directo al flujo de impresión del ticket físico en la Element RW80L
-            procederConImpresion(totalFinal, subtotal);
-        }
-
-        function procederConImpresion(totalFinal, subtotal) {
             const mesaOCliente = document.getElementById('cliente').value || "Walk-in";
             const ahora = new Date();
             const fechaHoraStr = ahora.toLocaleDateString('en-NZ') + " " + ahora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             
             const contenedorCocinaItems = document.getElementById('cocina-items');
             const contenedorClienteItems = document.getElementById('cliente-items');
-            contenedorCocinaItems.innerHTML = '';
-            contenedorClienteItems.innerHTML = '';
+            contenedorCocinaItems.innerHTML = ''; contenedorClienteItems.innerHTML = '';
 
             carrito.forEach(item => {
                 const precioLinea = item.precio * item.cantidad;
@@ -823,109 +697,56 @@ function calcularSplitDinamico() {
                 contenedorClienteItems.innerHTML += `<div class="print-linea-item"><span>${item.cantidad}x ${item.nombre}</span><span>$${precioLinea.toFixed(2)}</span></div>`;
             });
 
-            const gstCalculado = totalFinal / 7.6667;
-
             if(descuentoActual > 0) {
                 document.getElementById('print-descuento-linea').style.display = 'block';
                 document.getElementById('cliente-descuento').innerText = `-$${descuentoActual.toFixed(2)}`;
-            } else {
-                document.getElementById('print-descuento-linea').style.display = 'none';
-            }
+            } else { document.getElementById('print-descuento-linea').style.display = 'none'; }
 
             document.getElementById('cocina-fecha').innerText = fechaHoraStr;
             document.getElementById('cocina-mesa').innerText = mesaOCliente.toUpperCase();
             document.getElementById('cocina-servicio').innerText = tipoServicio.toUpperCase();
-
             document.getElementById('cliente-fecha').innerText = fechaHoraStr;
             document.getElementById('cliente-mesa').innerText = mesaOCliente;
             document.getElementById('cliente-servicio').innerText = tipoServicio;
             document.getElementById('cliente-total').innerText = `$${totalFinal.toFixed(2)}`;
-            document.getElementById('cliente-gst').innerText = `$${gstCalculado.toFixed(2)}`;
+            document.getElementById('cliente-gst').innerText = `$${(totalFinal / 7.6667).toFixed(2)}`;
 
             window.print();
-
-            // Reseteo limpio de la interfaz de la tablet para el siguiente tique
-            carrito = [];
-            descuentoActual = 0;
-            document.getElementById('cliente').value = '';
-            cambiarServicio('Dine In');
-            actualizarInterfazPantalla();
+            limpiarCarrito();
         }
 
-        /* PANEL ADMINISTRADOR DEL MENÚ COMPLETO */
-        function abrirPanelAdmin() {
-            document.getElementById('modalAdmin').style.display = 'flex';
-            renderizarTablaAdmin();
-        }
-        function cerrarPanelAdmin() {
-            document.getElementById('modalAdmin').style.display = 'none';
-            renderizarCategorias();
-            renderizarMenu();
-        }
+        /* ADMIN */
+        function abrirPanelAdmin() { document.getElementById('modalAdmin').style.display = 'flex'; renderizarTablaAdmin(); }
+        function cerrarPanelAdmin() { document.getElementById('modalAdmin').style.display = 'none'; renderizarCategorias(); renderizarMenu(); }
         function renderizarTablaAdmin() {
-            const tabla = document.getElementById('tabla-items-cuerpo');
-            tabla.innerHTML = '';
+            const tabla = document.getElementById('tabla-items-cuerpo'); tabla.innerHTML = '';
             menu.forEach(item => {
                 tabla.innerHTML += `<tr><td>${item.icono}</td><td><strong>${item.nombre}</strong></td><td>${item.categoria}</td><td>$${parseFloat(item.precio).toFixed(2)}</td><td><button class="btn-borrar-item" onclick="eliminarItemMenu(${item.id})">❌ Delete</button></td></tr>`;
             });
         }
         function guardarNuevoItem() {
-            const nombre = document.getElementById('add-nombre').value;
-            const precio = parseFloat(document.getElementById('add-precio').value);
-            const icono = document.getElementById('add-icono').value || "🍽️";
-            const categoria = document.getElementById('add-categoria').value || "Extras";
-
-            if(!nombre || isNaN(precio)) return alert("Fill fields.");
-            const nuevoId = menu.length > 0 ? Math.max(...menu.map(p => p.id)) + 1 : 1;
-            menu.push({ id: nuevoId, nombre, precio, icono, categoria });
-            
-            guardarMenuEnMemoria();
-            renderizarTablaAdmin();
-            document.getElementById('add-nombre').value = '';
-            document.getElementById('add-precio').value = '';
+            const nombre = document.getElementById('add-nombre').value; const precio = parseFloat(document.getElementById('add-precio').value);
+            const icono = document.getElementById('add-icono').value || "🍽️"; const categoria = document.getElementById('add-categoria').value || "Extras";
+            if(!nombre || isNaN(precio)) return;
+            menu.push({ id: Date.now(), nombre, precio, icono, categoria });
+            guardarMenuEnMemoria(); renderizarTablaAdmin();
+            document.getElementById('add-nombre').value = ''; document.getElementById('add-precio').value = '';
         }
-        function eliminarItemMenu(id) {
-            if(confirm("Delete item?")) { menu = menu.filter(p => p.id !== id); guardarMenuEnMemoria(); renderizarTablaAdmin(); }
-        }
+        function eliminarItemMenu(id) { if(confirm("Delete?")) { menu = menu.filter(p => p.id !== id); guardarMenuEnMemoria(); renderizarTablaAdmin(); } }
 
-        /* 🧠 EL CEREBRO DEL TECLADO VIRTUAL TÁCTIL INTELIGENTE */
+        /* TECLADO */
         let inputActivoActual = null;
-
         document.addEventListener('focusin', function(e) {
-            if (e.target.tagName === 'INPUT') {
-                inputActivoActual = e.target;
-                document.getElementById('tecladoVirtual').classList.add('activo');
-            }
+            if (e.target.tagName === 'INPUT') { inputActivoActual = e.target; document.getElementById('tecladoVirtual').classList.add('activo'); }
         });
-
-        function escribirTecla(caracter) {
-            if (inputActivoActual) {
-                inputActivoActual.value += caracter;
-                inputActivoActual.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        }
-
-        function borrarTecla() {
-            if (inputActivoActual && inputActivoActual.value.length > 0) {
-                inputActivoActual.value = inputActivoActual.value.slice(0, -1);
-                inputActivoActual.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        }
-
-        function ocultarTecladoVirtual() {
-            document.getElementById('tecladoVirtual').classList.remove('activo');
-            if (inputActivoActual) { inputActivoActual.blur(); }
-        }
-
+        function escribirTecla(caracter) { if (inputActivoActual) { inputActivoActual.value += caracter; inputActivoActual.dispatchEvent(new Event('input', { bubbles: true })); } }
+        function borrarTecla() { if (inputActivoActual && inputActivoActual.value.length > 0) { inputActivoActual.value = inputActivoActual.value.slice(0, -1); inputActivoActual.dispatchEvent(new Event('input', { bubbles: true })); } }
+        function ocultarTecladoVirtual() { document.getElementById('tecladoVirtual').classList.remove('activo'); if (inputActivoActual) { inputActivoActual.blur(); } }
         document.addEventListener('click', function(e) {
-            if (!e.target.closest('input') && !e.target.closest('.teclado-virtual') && !e.target.closest('.tarjeta-producto') && !e.target.closest('button')) {
-                ocultarTecladoVirtual();
-            }
+            if (!e.target.closest('input') && !e.target.closest('.teclado-virtual') && !e.target.closest('.tarjeta-producto') && !e.target.closest('button')) { ocultarTecladoVirtual(); }
         });
 
-        // ARRANQUE COMPLETO
-        renderizarCategorias();
-        renderizarMenu();
+        renderizarCategorias(); renderizarMenu();
     </script>
 </body>
 </html>
