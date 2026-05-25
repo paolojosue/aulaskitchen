@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paolonet Restaurant POS - Menu Manager</title>
+    <title>Menu Manager PaoloNet</title>
     <style>
         :root {
             --bg-principal: #f8f9fa;
             --tarjeta-bg: #ffffff;
             --texto: #2d3748;
-            --primario: #47a973;
-            --primario-hover: #388a5c;
+            --primario: #b525b8; /* 🌸 NUEVO COLOR ROSA PRINCIPAL */
+            --primario-hover: #961e99;
             --borde: #e2e8f0;
             --gris-claro: #edf2f7;
             --peligro: #e53e3e;
@@ -28,7 +28,7 @@
 
         .app-container {
             display: grid;
-            grid-template-columns: 220px 1fr 380px;
+            grid-template-columns: 240px 1fr 380px;
             width: 100%;
             height: 100%;
         }
@@ -66,7 +66,7 @@
             padding: 14px 15px;
             border-radius: 10px;
             font-weight: 700; 
-            font-size: 18px;
+            font-size: 14px;
             cursor: pointer;
             text-align: left;
             transition: all 0.2s;
@@ -76,7 +76,7 @@
         }
 
         .btn-categoria:hover { background: var(--bg-principal); }
-        .btn-categoria.activo { background: var(--primario); color: white; box-shadow: 0 4px 6px rgba(71, 169, 115, 0.15); }
+        .btn-categoria.activo { background: var(--primario); color: white; box-shadow: 0 4px 6px rgba(181, 37, 184, 0.15); }
 
         .btn-ajustes {
             background: var(--gris-claro);
@@ -105,11 +105,11 @@
         .tarjeta-producto:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: var(--primario); }
         
         .tarjeta-producto .emoji-icono {
-            font-size: 35px; margin-bottom: 12px; background: #edf7ed; border-radius: 50%;
+            font-size: 35px; margin-bottom: 12px; background: #fdf2fe; border-radius: 50%;
             width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;
         }
 
-        .tarjeta-producto .nombre { font-weight: 700; font-size: 18px; margin-bottom: 8px; }
+        .tarjeta-producto .nombre { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
         .tarjeta-producto .precio { font-weight: 800; color: var(--primario); font-size: 20px; }
 
         /* 3. TICKET SECCIÓN */
@@ -128,11 +128,12 @@
         
         .selector-servicio { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
         .btn-servicio { background: var(--gris-claro); color: var(--texto); border: 2px solid transparent; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-servicio.activo { background: #edf7ed; border-color: var(--primario); color: var(--primario); }
+        .btn-servicio.activo { background: #fdf2fe; border-color: var(--primario); color: var(--primario); }
 
         .ticket-totales { padding: 20px; background: #f7fafc; border-top: 1px solid var(--borde); }
         .fila-total { display: flex; justify-content: space-between; font-size: 22px; font-weight: 700; margin-bottom: 15px; }
         .btn-cobrar { width: 100%; background: var(--primario); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn-cobrar:hover { background: var(--primario-hover); }
 
         /* VENTANAS MODALES GENERALES */
         .modal-admin {
@@ -152,7 +153,7 @@
         .tabla-items-admin th, .tabla-items-admin td { padding: 10px; text-align: left; border-bottom: 1px solid var(--borde); font-size: 14px; }
         .btn-borrar-item { background: var(--peligro); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
 
-        /* 🆕 MODAL DASHBOARD DE DESCUENTOS */
+        /* MODAL DASHBOARD DE DESCUENTOS */
         .modal-descuento-contenido {
             background: white; padding: 25px; border-radius: 16px; width: 380px; text-align: center;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid var(--borde);
@@ -162,7 +163,7 @@
         .grid-descuentos-fijos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
         .btn-descuento-opcion { background: var(--gris-claro); border: 2px solid transparent; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; color: var(--texto); }
         .btn-descuento-opcion:active { background: #cbd5e0; }
-        .btn-descuento-opcion.seleccionado { background: #ebf8ff; border-color: #3182ce; color: #2b6cb0; }
+        .btn-descuento-opcion.seleccionado { background: #fdf2fe; border-color: var(--primario); color: var(--primario); }
         
         .input-contenedor-nzd { position: relative; margin-bottom: 20px; }
         .input-contenedor-nzd span { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 20px; font-weight: bold; color: #a0aec0; }
@@ -174,7 +175,7 @@
         .btn-modal-accion.aplicar { background: var(--primario); color: white; }
         .btn-modal-accion.cancelar { background: #718096; color: white; }
 
-        /* 🆕 MODAL DASHBOARD DE SPLIT */
+        /* MODAL DASHBOARD DE SPLIT */
         .modal-split-contenido {
             background: white; padding: 25px; border-radius: 16px; width: 380px; text-align: center;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid var(--borde);
@@ -208,7 +209,12 @@
         .teclado-tecla:active { background: #edf2f7; transform: translateY(2px); box-shadow: none; }
         .teclado-tecla.ancho-doble { max-width: 120px; background: #a0aec0; color: white; }
         .teclado-tecla.espacio { max-width: 350px; }
-        .teclado-tecla.accion { background: #47a973; color: white; max-width: 100px; }
+        .teclado-tecla.accion { background: var(--primario); color: white; max-width: 100px; }
+
+        /* AREA DE IMPRESIÓN FISICA - OCULTA EN PANTALLA NORMAL */
+        #area-impresion-final {
+            display: none;
+        }
 
         /* AREA DE IMPRESIÓN CONFIGURADA PARA 80MM SIN DESPERDICIO */
         @media print {
@@ -338,7 +344,7 @@
             </div>
             <div class="fila-botones-modal">
                 <button class="btn-modal-accion cancelar" onclick="cerrarModalSplit()">Close</button>
-                <button class="btn-modal-accion aplicar" style="background:#805ad5;" onclick="cerrarModalSplit()">Done ✓</button>
+                <button class="btn-modal-accion aplicar" style="background:#805ad5; color: white;" onclick="cerrarModalSplit()">Done ✓</button>
             </div>
         </div>
     </div>
@@ -412,8 +418,7 @@
         </div>
         <div class="recibo-cliente">
             <div class="print-header">
-                <span class="print-title">KIWI BITES CAFE</span><br>
-                <strong>GST Reg No: 12-345-678</strong><br>
+                <span class="print-title">AULA'S KITCHEN</span><br>
                 <span style="font-weight: bold; display:inline-block; margin-top:3px;">TAX INVOICE</span>
             </div>
             <div class="print-separador"></div>
@@ -436,33 +441,33 @@
     </div>
 
     <script>
+        /* 🆕 NUEVA LISTA DE PLATOS BASE POR DEFECTO ACTUALIZADA */
         const platosBase = [
             { id: 1, nombre: "Falafel pita", precio: 22.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
-		{ id: 2, nombre: "Schnitzel pita", precio: 25.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
-		{ id: 3, nombre: "Lamb & beef pita", precio: 25.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
+            { id: 2, nombre: "Schnitzel pita", precio: 25.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
+            { id: 3, nombre: "Lamb & beef pita", precio: 25.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
             { id: 4, nombre: "Falafel wrap", precio: 27.00, icono: "🌯", categoria: "WRAP" },
-	{ id: 5, nombre: "Schnitzel wrap", precio: 27.00, icono: "🌯", categoria: "WRAP" },
-	{ id: 6, nombre: "Lamb & beef wrap", precio: 27.00, icono: "🌯", categoria: "WRAP" },
-	{ id: 7, nombre: "Chichen wrap", precio: 27.00, icono: "🌯", categoria: "WRAP" },
-	{ id: 8, nombre: "Lamb wrap", precio: 30.00, icono: "🌯", categoria: "WRAP" },
+            { id: 5, nombre: "Schnitzel wrap", precio: 27.00, icono: "🌯", categoria: "WRAP" },
+            { id: 6, nombre: "Lamb & beef wrap", precio: 27.00, icono: "🌯", categoria: "WRAP" },
+            { id: 7, nombre: "Chichen wrap", precio: 27.00, icono: "🌯", categoria: "WRAP" },
+            { id: 8, nombre: "Lamb wrap", precio: 30.00, icono: "🌯", categoria: "WRAP" },
             { id: 9, nombre: "Classic Hummus", precio: 23.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
-{ id: 10, nombre: "Mushroom Hummus", precio: 24.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
-{ id: 11, nombre: "Lamb & beef Hummus", precio: 25.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
-{ id: 12, nombre: "Baba Ghanoush", precio: 21.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
-{ id: 13, nombre: "Cheese Labneh", precio: 20.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
+            { id: 10, nombre: "Mushroom Hummus", precio: 24.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
+            { id: 11, nombre: "Lamb & beef Hummus", precio: 25.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
+            { id: 12, nombre: "Baba Ghanoush", precio: 21.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
+            { id: 13, nombre: "Cheese Labneh", precio: 20.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
             { id: 14, nombre: "Falafel 7PCs", precio: 17.00, icono: "🥗", categoria: "SIDES & SALAD" },
-{ id: 15, nombre: "Fries", precio: 13.00, icono: "🥗", categoria: "SIDES & SALAD" },
-{ id: 16, nombre: "Fattoush salad", precio: 23.00, icono: "🥗", categoria: "SIDES & SALAD" },
-{ id: 17, nombre: "Chichen salad", precio: 27.00, icono: "🥗", categoria: "SIDES & SALAD" },
+            { id: 15, nombre: "Fries", precio: 13.00, icono: "🥗", categoria: "SIDES & SALAD" },
+            { id: 16, nombre: "Fattoush salad", precio: 23.00, icono: "🥗", categoria: "SIDES & SALAD" },
+            { id: 17, nombre: "Chichen salad", precio: 27.00, icono: "🥗", categoria: "SIDES & SALAD" },
             { id: 18, nombre: "Lamb & beef shared plate", precio: 65.00, icono: "🥨", categoria: "SHARED PLATES" },
-{ id: 19, nombre: "Schnitzel share plate", precio: 65.00, icono: "🥨", categoria: "SHARED PLATES" },
-{ id: 20, nombre: "Falafel share plate", precio: 60.00, icono: "🥨", categoria: "SHARED PLATES" },
-{ id: 21, nombre: "Mixed plate", precio: 120.00, icono: "🥨", categoria: "SHARED PLATES" },
+            { id: 19, nombre: "Schnitzel share plate", precio: 65.00, icono: "🥨", categoria: "SHARED PLATES" },
+            { id: 20, nombre: "Falafel share plate", precio: 60.00, icono: "🥨", categoria: "SHARED PLATES" },
+            { id: 21, nombre: "Mixed plate", precio: 120.00, icono: "🥨", categoria: "SHARED PLATES" },
             { id: 22, nombre: "Drink", precio: 6.00, icono: "🥨", categoria: "EXTRAS" },
-{ id: 23, nombre: "Dessert", precio: 15.00, icono: "🥨", categoria: "EXTRAS" },
-{ id: 24, nombre: "Ice cream", precio: 3.00, icono: "🥨", categoria: "EXTRAS" },
-{ id: 25, nombre: "Pita bread", precio: 2.00, icono: "🥨", categoria: "EXTRAS" }
-
+            { id: 23, nombre: "Dessert", precio: 15.00, icono: "🥨", categoria: "EXTRAS" },
+            { id: 24, nombre: "Ice cream", precio: 3.00, icono: "🥨", categoria: "EXTRAS" },
+            { id: 25, nombre: "Pita bread", precio: 2.00, icono: "🥨", categoria: "EXTRAS" }
         ];
 
         let menu = JSON.parse(localStorage.getItem('pos_menu_data')) || platosBase;
@@ -471,7 +476,7 @@
         let descuentoActual = 0;
         let porcentajeSeleccionado = 0;
         let categoriasReales = [...new Set(menu.map(p => p.categoria))];
-        let categoriaSeleccionada = categoriasReales[0] || "Extras"; 
+        let categoriaSeleccionada = categoriasReales[0] || "EXTRAS"; 
         let tipoServicio = "Dine In";
 
         function guardarMenuEnMemoria() {
@@ -484,7 +489,7 @@
             barra.innerHTML = '';
             categoriasReales.forEach(cat => {
                 const claseActivo = cat === categoriaSeleccionada ? 'activo' : '';
-                barra.innerHTML += `<button class="btn-categoria ${claseActivo}" onclick="filtrarCategoria('${cat}')">🍛 ${cat}</button>`;
+                barra.innerHTML += `<button class="btn-categoria ${claseActivo}" onclick="filtrarCategoria('${cat}')">🍽️ ${cat}</button>`;
             });
         }
 
@@ -506,12 +511,12 @@
                         <div class="precio">$${parseFloat(p.precio).toFixed(2)}</div>
                     </div>`;
             });
-            if (categoriaSeleccionada.toLowerCase() === "extras") {
+            if (categoriaSeleccionada.toUpperCase() === "EXTRAS") {
                 grid.innerHTML += `
-                    <div class="tarjeta-producto" onclick="agregarPlatoEspecial()" style="border: 2px dashed #3182ce; background: #ebf8ff;">
-                        <div class="emoji-icono" style="background: #ebf8ff; font-size: 38px;">📝</div>
-                        <div class="nombre" style="color: #2b6cb0;">+ Custom Extra</div>
-                        <div class="precio" style="color: #2b6cb0;">Variable</div>
+                    <div class="tarjeta-producto" onclick="agregarPlatoEspecial()" style="border: 2px dashed #b525b8; background: #fff5ff;">
+                        <div class="emoji-icono" style="background: #fff5ff; font-size: 38px;">===</div>
+                        <div class="nombre" style="color: #b525b8;">+ Custom Extra</div>
+                        <div class="precio" style="color: #b525b8;">Variable</div>
                     </div>`;
             }
         }
@@ -726,7 +731,7 @@
         }
         function guardarNuevoItem() {
             const nombre = document.getElementById('add-nombre').value; const precio = parseFloat(document.getElementById('add-precio').value);
-            const icono = document.getElementById('add-icono').value || "🍽️"; const categoria = document.getElementById('add-categoria').value || "Extras";
+            const icono = document.getElementById('add-icono').value || "🍽️"; const categoria = document.getElementById('add-categoria').value.toUpperCase() || "EXTRAS";
             if(!nombre || isNaN(precio)) return;
             menu.push({ id: Date.now(), nombre, precio, icono, categoria });
             guardarMenuEnMemoria(); renderizarTablaAdmin();
@@ -745,6 +750,16 @@
         document.addEventListener('click', function(e) {
             if (!e.target.closest('input') && !e.target.closest('.teclado-virtual') && !e.target.closest('.tarjeta-producto') && !e.target.closest('button')) { ocultarTecladoVirtual(); }
         });
+
+        /* INICIALIZAR EL PROGRAMA */
+        // Si hay datos viejos guardados en el navegador con categorías viejas, limpiamos la memoria una vez para forzar el nuevo menú.
+        if (!localStorage.getItem('pos_menu_v2_loaded')) {
+            menu = platosBase;
+            localStorage.setItem('pos_menu_data', JSON.stringify(platosBase));
+            localStorage.setItem('pos_menu_v2_loaded', 'true');
+        }
+        categoriasReales = [...new Set(menu.map(p => p.categoria))];
+        categoriaSeleccionada = categoriasReales[0] || "STUFFED PITA BREAD";
 
         renderizarCategorias(); renderizarMenu();
     </script>
