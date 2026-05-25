@@ -248,6 +248,22 @@
 .btn-modal-accion { border: none; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; }
 .btn-modal-accion.aplicar { background: var(--primario); color: white; }
 .btn-modal-accion.cancelar { background: #718096; color: white; }
+		.modal-split-contenido {
+    background: white; padding: 25px; border-radius: 16px; width: 380px; text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid var(--borde);
+}
+.modal-split-contenido h2 { margin: 0 0 5px 0; font-size: 20px; color: #1a202c; }
+.split-totales-info { background: var(--bg-principal); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+.split-totales-info .monto-grande { font-size: 28px; font-weight: 800; color: var(--primario); margin: 5px 0; }
+
+.control-personas { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 25px; }
+.btn-split-contador { background: var(--gris-claro); border: none; width: 50px; height: 50px; border-radius: 10px; font-size: 24px; font-weight: bold; cursor: pointer; color: var(--texto); }
+.btn-split-contador:active { background: #cbd5e0; }
+.input-split-personas { width: 70px; text-align: center; border: 2px solid var(--borde); border-radius: 10px; font-size: 22px; font-weight: bold; padding: 8px 0; outline: none; }
+.input-split-personas:focus { border-color: #805ad5; }
+
+.resultado-split { font-size: 16px; font-weight: 600; color: #4a5568; margin-bottom: 25px; padding: 10px; border-radius: 8px; background: #faf5ff; border: 1px dashed #d6bcfa; }
+.resultado-split strong { font-size: 22px; color: #805ad5; }
     </style>
 </head>
 <body>
@@ -286,7 +302,7 @@
                     <button onclick="limpiarCarrito()" style="background:#e53e3e; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🗑️ Clear</button>
                     <button onclick="parkOrder()" style="background:#dd6b20; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">⏳ Park</button>
                     <button onclick="abrirModalDescuento()" style="background:#3182ce; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🏷️ Disc.</button>
-                    <button onclick="splitBill()" style="background:#805ad5; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🔀 Split</button>
+                   <button onclick="splitBill()" style="background:#805ad5; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🔀 Split</button>
                 </div>
 
                 <div class="fila-total">
@@ -336,6 +352,37 @@
             <button class="btn-descuento-opcion" id="btn-desc-10" onclick="seleccionarDescuentoPorcentaje(10)">10% OFF</button>
             <button class="btn-descuento-opcion" id="btn-desc-20" onclick="seleccionarDescuentoPorcentaje(20)">20% OFF</button>
         </div>
+		<div class="modal-admin" id="modalDescuento">
+        <div class="modal-descuento-contenido">
+            ... todo el contenido del descuento ...
+        </div>
+    </div> <div class="modal-admin" id="modalSplit">
+        <div class="modal-split-contenido">
+            <h2>🔀 Split Bill</h2>
+            
+            <div class="split-totales-info">
+                <div>Order Total to Split:</div>
+                <div class="monto-grande" id="split-monto-total">$0.00</div>
+            </div>
+            
+            <div style="font-size: 15px; margin-bottom: 10px; font-weight: 600;">Number of People:</div>
+            <div class="control-personas">
+                <button class="btn-split-contador" onclick="modificarPersonasSplit(-1)">-</button>
+                <input type="number" id="input-split-personas" class="input-split-personas" value="2" min="2" oninput="calcularSplitDinamico()">
+                <button class="btn-split-contador" onclick="modificarPersonasSplit(1)">+</button>
+            </div>
+            
+            <div class="resultado-split">
+                Each person pays:<br>
+                <strong id="split-resultado-pago">$0.00 NZD</strong>
+            </div>
+            
+            <div class="fila-botones-modal">
+                <button class="btn-modal-accion cancelar" onclick="cerrarModalSplit()">Close</button>
+                <button class="btn-modal-accion aplicar" style="background:#805ad5;" onclick="cerrarModalSplit()">Done ✓</button>
+            </div>
+        </div>
+    </div>
         
         <div class="input-contenedor-nzd">
             <span>$</span>
@@ -702,24 +749,49 @@ function procesarAplicarDescuento() {
     cerrarModalDescuento();
 }
         function splitBill() {
-            if (carrito.length === 0) return alert("Cart is empty.");
-            let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0) - descuentoActual;
-            if (subtotal <= 0) return;
+    if (carrito.length === 0) return alert("Cart is empty.");
+    let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0) - descuentoActual;
+    if (subtotal <= 0) return;
 
-            const opcion = prompt("How would you like to split?\n1 = Split equally (By number of people)\n2 = Split by Items");
+    // Colocamos el total actual en el panel
+    document.getElementById('split-monto-total').innerText = `$${subtotal.toFixed(2)}`;
+    // Reiniciamos el contador a 2 personas por defecto
+    document.getElementById('input-split-personas').value = 2;
+    
+    document.getElementById('modalSplit').style.display = 'flex';
+    calcularSplitDinamico();
+}
 
-            if (opcion === "1") {
-                const personas = parseInt(prompt("How many people in the group?", "2"));
-                if (isNaN(personas) || personas <= 1) return;
-                alert(`🎯 SPLIT EQUALLY:\n\n${personas} People\nEach person pays: $${(subtotal / personas).toFixed(2)} NZD`);
-            } else if (opcion === "2") {
-                let desglose = "📦 SPLIT BY ITEMS:\n\n";
-                carrito.forEach(item => { desglose += `${item.cantidad}x ${item.nombre} = $${(item.precio * item.cantidad).toFixed(2)} NZD\n`; });
-                desglose += `\nTotal Ticket: $${subtotal.toFixed(2)} NZD`;
-                alert(desglose);
-            }
-        }
+function cerrarModalSplit() {
+    document.getElementById('modalSplit').style.display = 'none';
+    ocultarTecladoVirtual();
+}
 
+function modificarPersonasSplit(cambio) {
+    let input = document.getElementById('input-split-personas');
+    let valorActual = parseInt(input.value) || 2;
+    let nuevoValor = valorActual + cambio;
+    
+    if (nuevoValor >= 2) { // El mínimo para dividir una cuenta siempre es 2 personas
+        input.value = nuevoValor;
+        calcularSplitDinamico();
+    }
+}
+
+function calcularSplitDinamico() {
+    let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0) - descuentoActual;
+    if (subtotal < 0) subtotal = 0;
+    
+    let personas = parseInt(document.getElementById('input-split-personas').value);
+    
+    if (isNaN(personas) || personas < 2) {
+        document.getElementById('split-resultado-pago').innerText = "$0.00 NZD";
+        return;
+    }
+    
+    let division = subtotal / personas;
+    document.getElementById('split-resultado-pago').innerText = `$${division.toFixed(2)} NZD`;
+}
         /* 🚀 FUNCIÓN INTEGRADA CON SIMULACIÓN DE ENVÍO DE COBRO AUTOMÁTICO AL POS EFTPOS */
         function finalizarYGenerarRecibos() {
             if (carrito.length === 0) return alert("Please add products first.");
