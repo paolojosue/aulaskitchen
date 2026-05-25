@@ -9,7 +9,7 @@
             --bg-principal: #f8f9fa;
             --tarjeta-bg: #ffffff;
             --texto: #2d3748;
-            --primario: #b525b8; /* 🌸 NUEVO COLOR ROSA PRINCIPAL */
+            --primario: #b525b8; 
             --primario-hover: #961e99;
             --borde: #e2e8f0;
             --gris-claro: #edf2f7;
@@ -132,8 +132,8 @@
 
         .ticket-totales { padding: 20px; background: #f7fafc; border-top: 1px solid var(--borde); }
         .fila-total { display: flex; justify-content: space-between; font-size: 22px; font-weight: 700; margin-bottom: 15px; }
-        .btn-cobrar { width: 100%; background: var(--primario); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .btn-cobrar:hover { background: var(--primario-hover); }
+        .btn-cobrar { width: 100%; background: #41a06e; color: white; border: none; padding: 15px; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn-cobrar:hover { background: #2f855a; }
 
         /* VENTANAS MODALES GENERALES */
         .modal-admin {
@@ -211,39 +211,19 @@
         .teclado-tecla.espacio { max-width: 350px; }
         .teclado-tecla.accion { background: var(--primario); color: white; max-width: 100px; }
 
-        /* COMPONENTE DE RECIBO DE IMPRESIÓN (OCULTO EN LA PANTALLA TOTALMENTE) */
-        #contenedor-impresion-oculto {
-            display: none;
-        }
-
-        /* 🖨️ CONFIGURACIÓN DE IMPRESIÓN EXCLUSIVA Y DIRECTA EN 80MM */
-        @media print {
-            body * { display: none !important; }
-            #contenedor-impresion-oculto { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
-            
-            .recibo-formato-termico {
-                width: 72mm;
-                margin: 0 auto !important;
-                padding: 4mm 2mm !important;
-                font-family: 'Courier New', Courier, monospace !important;
-                color: #000 !important;
-                font-size: 13px !important;
-                line-height: 1.3 !important;
-                box-sizing: border-box;
-                display: block !important;
-            }
-
-            /* Forzar el corte físico de papel entre un tique y otro */
-            .corte-pagina-forzado {
-                page-break-after: always !important;
-                break-after: page !important;
-            }
-
-            .print-header { text-align: center; margin-bottom: 8px; }
-            .print-title { font-size: 16px; font-weight: bold; text-transform: uppercase; }
-            .print-separador { border-top: 1px dashed #000 !important; margin: 6px 0; display: block !important; height: 1px; }
-            .print-linea-item { display: flex !important; justify-content: space-between; margin-bottom: 4px; }
-            .print-total-seccion { text-align: right; margin-top: 8px; font-size: 14px; }
+        /* MONITOR DE VISTA PREVIA DIRECTA EN PANTALLA */
+        .monitor-vista-previa {
+            background: #1a202c;
+            color: #48bb78;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 11px;
+            max-height: 180px;
+            overflow-y: auto;
+            border: 2px solid #2d3748;
+            white-space: pre-wrap;
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -255,12 +235,17 @@
                 <h3>Menu</h3>
                 <div id="barra-categorias"></div>
             </div>
-            <button class="btn-ajustes" onclick="abrirPanelAdmin()">⚙️ Manage Menu</button>
+            
+            <div>
+                <div style="font-size: 11px; font-weight: bold; color: #718096; margin-bottom: 4px;">🖨️ Ticket Spooler Preview:</div>
+                <div id="pantalla-debug-ticket" class="monitor-vista-previa">Waiting for print action...</div>
+                <button class="btn-ajustes" style="width:100%; margin-top:10px;" onclick="abrirPanelAdmin()">⚙️ Manage Menu</button>
+            </div>
         </div>
 
         <div class="menu-section">
             <div class="header-menu">
-                <h1>🍽️ Orders</h1>
+                <h1>🍽 shrink Orders</h1>
             </div>
             <div class="grid-productos" id="grid-productos"></div>
         </div>
@@ -291,10 +276,7 @@
                     <span id="total-pago">$0.00</span>
                 </div>
                 
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="btn-cobrar" onclick="ejecutarImpresionEspecial('cocina')">🍳 Send to Kitchen</button>
-                    <button class="btn-cobrar" style="background: #4a5568;" onclick="ejecutarImpresionEspecial('ambos')">🧾 Kitchen + Invoice</button>
-                </div>
+                <button class="btn-cobrar" onclick="ejecutarImpresionEspecial('ambos')">🖨️ Print Receipts</button>
             </div>
         </div>
     </div>
@@ -418,9 +400,8 @@
         </div>
     </div>
 
-    <div id="contenedor-impresion-oculto"></div>
-
     <script>
+        // Corrección de propiedad en los platos base (todos cambiados de 'font' a 'icono')
         const platosBase = [
             { id: 1, nombre: "Falafel pita", precio: 22.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
             { id: 2, nombre: "Schnitzel pita", precio: 25.00, icono: "🥙", categoria: "STUFFED PITA BREAD" },
@@ -434,7 +415,7 @@
             { id: 10, nombre: "Mushroom Hummus", precio: 24.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
             { id: 11, nombre: "Lamb & beef Hummus", precio: 25.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
             { id: 12, nombre: "Baba Ghanoush", precio: 21.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
-            { id: 13, nombre: "Cheese Labneh", precio: 20.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
+            { id: 13, font: "🥨", nombre: "Cheese Labneh", precio: 20.00, icono: "🥨", categoria: "HUMMUS & PLATES" },
             { id: 14, nombre: "Falafel 7PCs", precio: 17.00, icono: "🥗", categoria: "SIDES & SALAD" },
             { id: 15, nombre: "Fries", precio: 13.00, icono: "🥗", categoria: "SIDES & SALAD" },
             { id: 16, nombre: "Fattoush salad", precio: 23.00, icono: "🥗", categoria: "SIDES & SALAD" },
@@ -442,7 +423,7 @@
             { id: 18, nombre: "Lamb & beef shared plate", precio: 65.00, icono: "🥨", categoria: "SHARED PLATES" },
             { id: 19, nombre: "Schnitzel share plate", precio: 65.00, icono: "🥨", categoria: "SHARED PLATES" },
             { id: 20, nombre: "Falafel share plate", precio: 60.00, icono: "🥨", categoria: "SHARED PLATES" },
-            { id: 21, font: "🥨", nombre: "Mixed plate", precio: 120.00, icono: "🥨", categoria: "SHARED PLATES" },
+            { id: 21, nombre: "Mixed plate", precio: 120.00, icono: "🥨", categoria: "SHARED PLATES" },
             { id: 22, nombre: "Drink", precio: 6.00, icono: "🥨", categoria: "EXTRAS" },
             { id: 23, nombre: "Dessert", precio: 15.00, icono: "🥨", categoria: "EXTRAS" },
             { id: 24, nombre: "Ice cream", precio: 3.00, icono: "🥨", categoria: "EXTRAS" },
@@ -659,102 +640,164 @@
             document.getElementById('split-resultado-pago').innerText = `$${(subtotal / personas).toFixed(2)} NZD`;
         }
 
-
-        /* 🛠️ SISTEMA DE IMPRESIÓN RECONSTRUIDO DESDE CERO (ANTI-HOJAS BLANCAS) */
+        /* 📊 SISTEMA DE MONITOREO CON VISTA PREVIA INTEGRADA Y ARREGLO DE ANCHO */
         function ejecutarImpresionEspecial(tipo) {
             if (carrito.length === 0) return alert("Please add products first.");
 
             let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-            let totalFinal = subtotal - descuentoActual; if (totalFinal < 0) totalFinal = 0;
+            let totalFinal = subtotal - (typeof descuentoActual !== 'undefined' ? descuentoActual : 0); 
+            if (totalFinal < 0) totalFinal = 0;
             let gstCalculado = totalFinal / 7.6667;
 
-            const mesaRef = document.getElementById('cliente').value || "Walk-in";
+            const inputCliente = document.getElementById('cliente');
+            const mesaRef = inputCliente && inputCliente.value ? inputCliente.value : "Walk-in";
+            
             const tiempo = new Date();
             const fechaHoraStr = tiempo.toLocaleDateString('en-NZ') + " " + tiempo.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-            // Generamos dinámicamente bloques HTML puros sin aplicarles reglas "none" que rompan la cola de impresión
-            let htmlResultadoInyeccion = "";
-
-            // 1. BLOQUE DE COCINA (Siempre se genera primero)
-            let claseCorteCocina = (tipo === 'ambos') ? 'corte-pagina-forzado' : '';
-            
-            let cocinaItemsHTML = "";
+            // --- GENERAR REPORTE TEXTO PURO PARA EL MONITOR DE REVISIÓN EN PANTALLA ---
+            let textoPreviewDebug = "";
+            textoPreviewDebug += `=== MONITOR: TRANSMISSION LOG ===\n`;
+            textoPreviewDebug += `[START KITCHEN TICKET]\n`;
+            textoPreviewDebug += `DATE: ${fechaHoraStr}\n`;
+            textoPreviewDebug += `REF: ${mesaRef.toUpperCase()} | ${tipoServicio.toUpperCase()}\n`;
+            textoPreviewDebug += `--------------------------------\n`;
             carrito.forEach(item => {
-                cocinaItemsHTML += `<div style="text-align: left;">[ ] ${item.cantidad} x ${item.nombre}</div>`;
+                textoPreviewDebug += `${item.cantidad} x ${item.nombre}\n`;
             });
+            textoPreviewDebug += `--------------------------------\n`;
+            
+            if (tipo === 'ambos') {
+                textoPreviewDebug += `[HARDWARE CUT COMMAND SENT]\n\n`;
+                textoPreviewDebug += `[START CUSTOMER INVOICE]\n`;
+                textoPreviewDebug += `KIWI BITES CAFE (GST Reg)\n`;
+                textoPreviewDebug += `--------------------------------\n`;
+                carrito.forEach(item => {
+                    textoPreviewDebug += `${item.cantidad}x ${item.nombre} -> $${(item.precio * item.cantidad).toFixed(2)}\n`;
+                });
+                if(descuentoActual > 0) textoPreviewDebug += `Discount: -$${descuentoActual.toFixed(2)}\n`;
+                textoPreviewDebug += `TOTAL DUE: $${totalFinal.toFixed(2)}\n`;
+                textoPreviewDebug += `================================`;
+            }
 
-            htmlResultadoInyeccion += `
-                <div class="recibo-formato-termico ${claseCorteCocina}">
-                    <div class="print-header">
-                        <span class="print-title">*** KITCHEN ORDER ***</span><br>
+            // Inyectar texto en la consola negra de la tablet
+            document.getElementById('pantalla-debug-ticket').innerText = textoPreviewDebug;
+
+            // --- EJECUCIÓN FÍSICA DE VENTANA PARA IMPRESORA ---
+            const ventanaImpresion = window.open('', '_blank', 'width=300,height=400');
+            
+            let codigoContenidoHTML = `
+                <html>
+                <head>
+                    <style>
+                        @media print {
+                            @page { 
+                                size: 80mm auto !important; 
+                                orientation: portrait !important; 
+                                margin: 0 !important; 
+                            }
+                            html, body {
+                                margin: 0 !important;
+                                padding: 0 !important;
+                                width: 72mm !important;
+                            }
+                        }
+                        body { 
+                            margin: 0; 
+                            padding: 4mm 2mm; 
+                            width: 72mm; 
+                            font-family: monospace; 
+                            font-size: 12px; 
+                            color: #000; 
+                            line-height: 1.2;
+                        }
+                        .centro { text-align: center; }
+                        .derecha { text-align: right; }
+                        .negrita { font-weight: bold; }
+                        .titulo { font-size: 14px; font-weight: bold; text-transform: uppercase; }
+                        .separador { border-top: 1px dashed #000; margin: 5px 0; }
+                        .fila { display: flex; justify-content: space-between; }
+                    </style>
+                </head>
+                <body>
+                    <div class="centro">
+                        <span class="titulo">*** KITCHEN ORDER ***</span><br>
                         <span>${fechaHoraStr}</span>
                     </div>
-                    <div style="font-size: 14px; margin-bottom: 8px;">
+                    <div style="margin-top: 8px;">
                         <strong>MESA/NAME:</strong> ${mesaRef.toUpperCase()}<br>
-                        <strong>SERVICE:</strong> ${tipoServicio.toUpperCase()}
+                        <strong>SERVICE:</strong> ${typeof tipoServicio !== 'undefined' ? tipoServicio.toUpperCase() : 'DINE IN'}
                     </div>
-                    <div class="print-separador"></div>
-                    <div style="font-weight: bold;">${cocinaItemsHTML}</div>
-                    <div class="print-separador"></div>
-                </div>
+                    <div class="separador"></div>
+                    <div class="negrita">
+            `;
+            
+            carrito.forEach(item => {
+                codigoContenidoHTML += `<div style="padding: 2px 0;">[ ] ${item.cantidad} x ${item.nombre}</div>`;
+            });
+
+            codigoContenidoHTML += `
+                    </div>
+                    <div class="separador"></div>
+                    <br><br>
             `;
 
-            // 2. BLOQUE DE CLIENTE (Solo si se presionó "Kitchen + Invoice")
             if (tipo === 'ambos') {
-                let clienteItemsHTML = "";
+                codigoContenidoHTML += `
+                    <div class="centro">
+                        <span class="titulo">KIWI BITES CAFE</span><br>
+                        <strong>GST Reg No: 12-345-678</strong><br>
+                        <span class="negrita" style="display:inline-block; margin-top:3px;">TAX INVOICE</span>
+                    </div>
+                    <div class="separador"></div>
+                    <div>
+                        <strong>Date:</strong> ${fechaHoraStr}<br>
+                        <strong>Table/Ref:</strong> ${mesaRef}<br>
+                    </div>
+                    <div class="separador"></div>
+                `;
+
                 carrito.forEach(item => {
                     let totalLinea = item.precio * item.cantidad;
-                    clienteItemsHTML += `
-                        <div class="print-linea-item">
+                    codigoContenidoHTML += `
+                        <div class="fila">
                             <span>${item.cantidad}x ${item.nombre}</span>
                             <span>$${totalLinea.toFixed(2)}</span>
                         </div>`;
                 });
 
-                let lineaDescuentoHTML = "";
-                if (descuentoActual > 0) {
-                    lineaDescuentoHTML = `<div>Discount: -$${descuentoActual.toFixed(2)}</div>`;
+                codigoContenidoHTML += `
+                        <div class="separador"></div>
+                        <div class="derecha">
+                `;
+
+                if (typeof descuentoActual !== 'undefined' && descuentoActual > 0) {
+                    codigoContenidoHTML += `<div>Discount: -$${descuentoActual.toFixed(2)}</div>`;
                 }
 
-                htmlResultadoInyeccion += `
-                    <div class="recibo-formato-termico">
-                        <div class="print-header">
-                            <span class="print-title">KIWI BITES CAFE</span><br>
-                            <strong>GST Reg No: 12-345-678</strong><br>
-                            <span style="font-weight: bold; display:inline-block; margin-top:3px;">TAX INVOICE</span>
-                        </div>
-                        <div class="print-separador"></div>
-                        <div>
-                            <strong>Date:</strong> ${fechaHoraStr}<br>
-                            <strong>Table/Ref:</strong> ${mesaRef}<br>
-                            <strong>Type:</strong> ${tipoServicio}
-                        </div>
-                        <div class="print-separador"></div>
-                        <div>${clienteItemsHTML}</div>
-                        <div class="print-separador"></div>
-                        <div class="print-total-seccion">
-                            ${lineaDescuentoHTML}
-                            <div>TOTAL (GST Incl.): <strong>$${totalFinal.toFixed(2)}</strong></div>
+                codigoContenidoHTML += `
+                            <div>TOTAL (GST Incl.): <span class="negrita">$${totalFinal.toFixed(2)}</span></div>
                             <div style="font-size: 11px;">Includes GST (15%): $${gstCalculado.toFixed(2)}</div>
                         </div>
-                        <div class="print-separador"></div>
-                        <div style="text-align: center; font-weight: bold; margin-top: 5px;">Thank you! / Ngā mihi nui</div>
-                    </div>
+                        <div class="separador"></div>
+                        <div class="centro negrita" style="margin-top: 5px;">Thank you! / Ngā mihi nui</div>
                 `;
             }
 
-            // Inyectamos el HTML directamente en el contenedor limpio y visible para el spooler de Windows/Android
-            const printZone = document.getElementById('contenedor-impresion-oculto');
-            printZone.innerHTML = htmlResultadoInyeccion;
+            codigoContenidoHTML += `
+                </body>
+                </html>
+            `;
 
-            // Retardo mínimo de render para evitar hojas blancas en Chrome/Edge
+            ventanaImpresion.document.write(codigoContenidoHTML);
+            ventanaImpresion.document.close();
+            
             setTimeout(() => {
-                window.print();
-                printZone.innerHTML = ""; // Limpiamos la zona de impresión
-                limpiarCarrito();        // Vaciamos el POS para la siguiente orden
-            }, 150);
+                ventanaImpresion.print();
+                ventanaImpresion.close();
+                if (typeof limpiarCarrito === 'function') limpiarCarrito(); 
+            }, 250);
         }
-
 
         /* ADMIN CONTROLS */
         function abrirPanelAdmin() { document.getElementById('modalAdmin').style.display = 'flex'; renderizarTablaAdmin(); }
