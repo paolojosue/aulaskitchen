@@ -274,10 +274,10 @@
                 <div class="fila-total">
                     <span>Total:</span>
                     <span id="total-pago">$0.00</span>
-                </div>
-                
-                <button class="btn-cobrar" onclick="ejecutarImpresionEspecial('ambos')">🖨️ Print Receipts</button>
-            </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <button class="btn-cobrar" style="background: #3182ce; font-size: 15px; padding: 12px;" onclick="ejecutarImpresionEspecial('cocina')">🍳 Only Kitchen</button>
+    <button class="btn-cobrar" style="background: #41a06e; font-size: 15px; padding: 12px;" onclick="ejecutarImpresionEspecial('ambos')">🖨️ Kitchen + Bill</button>
+</div>
         </div>
     </div>
 
