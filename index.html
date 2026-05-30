@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NZ Restaurant POS - Cloud Edition</title>
+    <title>Aula's Kitchen POS - PaolinNET</title>
     <style>
         :root {
             --bg-principal: #f8f9fa;
@@ -714,7 +714,7 @@
                         .centro { text-align: center; }
                         .derecha { text-align: right; }
                         .negrita { font-weight: bold; }
-                        .titulo { font-size: 14px; font-weight: bold; text-transform: uppercase; }
+                        .titulo { font-size:30px; font-weight: bold; text-transform: uppercase; }
                         .separador { border-top: 1px dashed #000; margin: 5px 0; }
                         .fila { display: flex; justify-content: space-between; }
                     </style>
@@ -725,7 +725,7 @@
                         <span>${fechaHoraStr}</span>
                     </div>
                     <div style="margin-top: 8px;">
-                        <strong>MESA/NAME:</strong> ${mesaRef.toUpperCase()}<br>
+                        <strong>MESA:</strong> ${mesaRef.toUpperCase()}<br>
                         <strong>SERVICE:</strong> ${typeof tipoServicio !== 'undefined' ? tipoServicio.toUpperCase() : 'DINE IN'}
                     </div>
                     <div class="separador"></div>
@@ -745,7 +745,7 @@
             if (tipo === 'ambos') {
                 codigoContenidoHTML += `
                     <div class="centro">
-                        <span class="titulo">KIWI BITES CAFE</span><br>
+                        <span class="titulo">AULA'S KITCHEN</span><br>
                         <strong>GST Reg No: 12-345-678</strong><br>
                         <span class="negrita" style="display:inline-block; margin-top:3px;">TAX INVOICE</span>
                     </div>
