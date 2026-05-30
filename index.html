@@ -274,11 +274,10 @@
                 <div class="fila-total">
                     <span>Total:</span>
                     <span id="total-pago">$0.00</span>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
     <button class="btn-cobrar" style="background: #3182ce; font-size: 15px; padding: 12px;" onclick="ejecutarImpresionEspecial('cocina')">🍳 Only Kitchen</button>
-    <button class="btn-cobrar" style="background: #41a06e; font-size: 15px; padding: 12px;" onclick="ejecutarImpresionEspecial('ambos')">🖨️ Kitchen + Bill</button>
-</div>
-        </div>
+    <button class="btn-cobrar" style="background: #41a06e; font-size: 15px; padding: 12px;" onclick="ejecutarImpresionEspecial('invoice')">💵 Only Invoice</button>
+</div>        </div>
     </div>
 
     <div class="modal-admin" id="modalAdmin">
@@ -640,45 +639,175 @@
             document.getElementById('split-resultado-pago').innerText = `$${(subtotal / personas).toFixed(2)} NZD`;
         }
 
-        /* 📊 SISTEMA DE MONITOREO CON VISTA PREVIA INTEGRADA Y ARREGLO DE ANCHO */
-        function ejecutarImpresionEspecial(tipo) {
-            if (carrito.length === 0) return alert("Please add products first.");
+        /* 📊 SISTEMA DE IMPRESIÓN CON SEPARACIÓN REAL DE TIQUES */
+function ejecutarImpresionEspecial(tipo) {
+    if (carrito.length === 0) return alert("Please add products first.");
 
-            let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-            let totalFinal = subtotal - (typeof descuentoActual !== 'undefined' ? descuentoActual : 0); 
-            if (totalFinal < 0) totalFinal = 0;
-            let gstCalculado = totalFinal / 7.6667;
+    let subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    let totalFinal = subtotal - (typeof descuentoActual !== 'undefined' ? descuentoActual : 0); 
+    if (totalFinal < 0) totalFinal = 0;
+    let gstCalculado = totalFinal / 7.6667;
 
-            const inputCliente = document.getElementById('cliente');
-            const mesaRef = inputCliente && inputCliente.value ? inputCliente.value : "Walk-in";
-            
-            const tiempo = new Date();
-            const fechaHoraStr = tiempo.toLocaleDateString('en-NZ') + " " + tiempo.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    const inputCliente = document.getElementById('cliente');
+    const mesaRef = inputCliente && inputCliente.value ? inputCliente.value : "Walk-in";
+    
+    const tiempo = new Date();
+    const fechaHoraStr = tiempo.toLocaleDateString('en-NZ') + " " + tiempo.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-            // --- GENERAR REPORTE TEXTO PURO PARA EL MONITOR DE REVISIÓN EN PANTALLA ---
-            let textoPreviewDebug = "";
-            textoPreviewDebug += `=== MONITOR: TRANSMISSION LOG ===\n`;
-            textoPreviewDebug += `[START KITCHEN TICKET]\n`;
-            textoPreviewDebug += `DATE: ${fechaHoraStr}\n`;
-            textoPreviewDebug += `REF: ${mesaRef.toUpperCase()} | ${tipoServicio.toUpperCase()}\n`;
-            textoPreviewDebug += `--------------------------------\n`;
-            carrito.forEach(item => {
-                textoPreviewDebug += `${item.cantidad} x ${item.nombre}\n`;
-            });
-            textoPreviewDebug += `--------------------------------\n`;
-            
-            if (tipo === 'ambos') {
-                textoPreviewDebug += `[HARDWARE CUT COMMAND SENT]\n\n`;
-                textoPreviewDebug += `[START CUSTOMER INVOICE]\n`;
-                textoPreviewDebug += `KIWI BITES CAFE (GST Reg)\n`;
-                textoPreviewDebug += `--------------------------------\n`;
-                carrito.forEach(item => {
-                    textoPreviewDebug += `${item.cantidad}x ${item.nombre} -> $${(item.precio * item.cantidad).toFixed(2)}\n`;
-                });
-                if(descuentoActual > 0) textoPreviewDebug += `Discount: -$${descuentoActual.toFixed(2)}\n`;
-                textoPreviewDebug += `TOTAL DUE: $${totalFinal.toFixed(2)}\n`;
-                textoPreviewDebug += `================================`;
-            }
+    // --- 1. GENERAR REPORTE PARA EL MONITOR VISUAL (LETRAS VERDES) ---
+    let textoPreviewDebug = "";
+    textoPreviewDebug += `=== MONITOR: TRANSMISSION LOG ===\n`;
+    
+    if (tipo === 'cocina') {
+        textoPreviewDebug += `[START KITCHEN TICKET]\n`;
+        textoPreviewDebug += `DATE: ${fechaHoraStr}\n`;
+        textoPreviewDebug += `BUZZER/REF: ${mesaRef.toUpperCase()} | ${tipoServicio.toUpperCase()}\n`;
+        textoPreviewDebug += `--------------------------------\n`;
+        carrito.forEach(item => {
+            textoPreviewDebug += `${item.cantidad} x ${item.nombre}\n`;
+        });
+        textoPreviewDebug += `--------------------------------\n`;
+    } else if (tipo === 'invoice') {
+        textoPreviewDebug += `[START CUSTOMER INVOICE]\n`;
+        textoPreviewDebug += `KIWI BITES CAFE (GST Reg)\n`;
+        textoPreviewDebug += `DATE: ${fechaHoraStr} | REF: ${mesaRef}\n`;
+        textoPreviewDebug += `--------------------------------\n`;
+        carrito.forEach(item => {
+            textoPreviewDebug += `${item.cantidad}x ${item.nombre} -> $${(item.precio * item.cantidad).toFixed(2)}\n`;
+        });
+        if(descuentoActual > 0) textoPreviewDebug += `Discount: -$${descuentoActual.toFixed(2)}\n`;
+        textoPreviewDebug += `TOTAL DUE: $${totalFinal.toFixed(2)}\n`;
+        textoPreviewDebug += `================================`;
+    }
+
+    document.getElementById('pantalla-debug-ticket').innerText = textoPreviewDebug;
+
+    // --- 2. EJECUCIÓN E IMPRESIÓN FÍSICA EN PAPEL ---
+    const ventanaImpresion = window.open('', '_blank', 'width=300,height=400');
+    
+    let codigoContenidoHTML = `
+        <html>
+        <head>
+            <style>
+                @media print {
+                    @page { 
+                        size: 80mm auto !important; 
+                        orientation: portrait !important; 
+                        margin: 0 !important; 
+                    }
+                    html, body {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        width: 72mm !important;
+                    }
+                }
+                body { 
+                    margin: 0; 
+                    padding: 4mm 2mm; 
+                    width: 72mm; 
+                    font-family: monospace; 
+                    font-size: 12px; 
+                    color: #000; 
+                    line-height: 1.2;
+                }
+                .centro { text-align: center; }
+                .derecha { text-align: right; }
+                .negrita { font-weight: bold; }
+                .titulo { font-size: 14px; font-weight: bold; text-transform: uppercase; }
+                .separador { border-top: 1px dashed #000; margin: 5px 0; }
+                .fila { display: flex; justify-content: space-between; }
+            </style>
+        </head>
+        <body>
+    `;
+    
+    // Si presionaste "Only Kitchen", solo dibuja la sección de cocina
+    if (tipo === 'cocina') {
+        codigoContenidoHTML += `
+            <div class="centro">
+                <span class="titulo">*** KITCHEN ORDER ***</span><br>
+                <span>${fechaHoraStr}</span>
+            </div>
+            <div style="margin-top: 8px;">
+                <strong>BUZZER/REF:</strong> ${mesaRef.toUpperCase()}<br>
+                <strong>SERVICE:</strong> ${typeof tipoServicio !== 'undefined' ? tipoServicio.toUpperCase() : 'DINE IN'}
+            </div>
+            <div class="separador"></div>
+            <div class="negrita">
+        `;
+        
+        carrito.forEach(item => {
+            codigoContenidoHTML += `<div style="padding: 2px 0;">[ ] ${item.cantidad} x ${item.nombre}</div>`;
+        });
+
+        codigoContenidoHTML += `
+            </div>
+            <div class="separador"></div>
+        `;
+    }
+
+    // Si presionaste "Only Invoice", solo dibuja la sección de cobro del cliente
+    if (tipo === 'invoice') {
+        codigoContenidoHTML += `
+            <div class="centro">
+                <span class="titulo">KIWI BITES CAFE</span><br>
+                <strong>GST Reg No: 12-345-678</strong><br>
+                <span class="negrita" style="display:inline-block; margin-top:3px;">TAX INVOICE</span>
+            </div>
+            <div class="separador"></div>
+            <div>
+                <strong>Date:</strong> ${fechaHoraStr}<br>
+                <strong>Buzzer/Ref:</strong> ${mesaRef}<br>
+                <strong>Service:</strong> ${typeof tipoServicio !== 'undefined' ? tipoServicio.toUpperCase() : 'DINE IN'}<br>
+            </div>
+            <div class="separador"></div>
+        `;
+
+        carrito.forEach(item => {
+            let totalLinea = item.precio * item.cantidad;
+            codigoContenidoHTML += `
+                <div class="fila">
+                    <span>${item.cantidad}x ${item.nombre}</span>
+                    <span>$${totalLinea.toFixed(2)}</span>
+                </div>`;
+        });
+
+        codigoContenidoHTML += `
+                <div class="separador"></div>
+                <div class="derecha">
+        `;
+
+        if (typeof descuentoActual !== 'undefined' && descuentoActual > 0) {
+            codigoContenidoHTML += `<div>Discount: -$${descuentoActual.toFixed(2)}</div>`;
+        }
+
+        codigoContenidoHTML += `
+                    <div>TOTAL (GST Incl.): <span class="negrita">$${totalFinal.toFixed(2)}</span></div>
+                    <div style="font-size: 11px;">Includes GST (15%): $${gstCalculado.toFixed(2)}</div>
+                </div>
+                <div class="separador"></div>
+                <div class="centro negrita" style="margin-top: 5px;">Thank you! / Ngā mihi nui</div>
+        `;
+    }
+
+    codigoContenidoHTML += `
+        </body>
+        </html>
+    `;
+
+    ventanaImpresion.document.write(codigoContenidoHTML);
+    ventanaImpresion.document.close();
+    
+    setTimeout(() => {
+        ventanaImpresion.print();
+        ventanaImpresion.close();
+        
+        // ¡OJO! Solo borramos el pedido de la pantalla cuando se imprime el Invoice (el pago final)
+        if (tipo === 'invoice' && typeof limpiarCarrito === 'function') {
+            limpiarCarrito(); 
+        }
+    }, 250);
+}
 
             // Inyectar texto en la consola negra de la tablet
             document.getElementById('pantalla-debug-ticket').innerText = textoPreviewDebug;
