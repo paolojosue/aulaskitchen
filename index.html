@@ -747,7 +747,7 @@
                 `;
                 
                 carrito.forEach(item => {
-                    codigoContenidoHTML += `<div style="padding: 2px 0;">[ ] ${item.cantidad} x ${item.nombre}</div>`;
+                    codigoContenidoHTML += `<div style="padding: 2px 0;"> ${item.cantidad} ${item.nombre}</div>`;
                 });
 
                 codigoContenidoHTML += `
