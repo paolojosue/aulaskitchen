@@ -694,7 +694,7 @@
             document.getElementById('pantaya-debug-ticket').innerText = textoPreviewDebug;
 
             // --- 2. CONSTRUCCIÓN DE VENTANA DE IMPRESIÓN REAL ---
-            const ventanaImpresion = window.open('', '_blank', 'width=300,height=800');
+            const ventanaImpresion = window.open('', '_blank', 'width=300,height=1600');
             
             let codigoContenidoHTML = `
                 <html>
@@ -724,7 +724,7 @@
                         .centro { text-align: center; }
                         .derecha { text-align: right; }
                         .negrita { font-weight: bold; }
-                        .titulo { font-size: 24px; font-weight: bold; text-transform: uppercase; }
+                        .titulo { font-size: 20px; font-weight: bold; text-transform: uppercase; }
                         .separador { border-top: 1px dashed #000; margin: 5px 0; }
                         .fila { display: flex; justify-content: space-between; }
                     </style>
@@ -735,7 +735,7 @@
             if (tipo === 'cocina') {
                 codigoContenidoHTML += `
                     <div class="centro">
-                        <span class="titulo">*** KITCHEN ORDER ***</span><br>
+                        <span class="titulo"> KITCHEN ORDER </span><br>
                         <span>${fechaHoraStr}</span>
                     </div>
                     <div style="margin-top: 8px;">
@@ -760,7 +760,7 @@
                 codigoContenidoHTML += `
                     <div class="centro">
                         <span class="titulo">AULA'S KITCHEN</span><br>
-                        <strong>GST Reg No: 12-345-678</strong><br>
+                        <strong>GST Reg No: 129-509-821</strong><br>
                         <span class="negrita" style="display:inline-block; margin-top:3px;">TAX INVOICE</span>
                     </div>
                     <div class="separador"></div>
