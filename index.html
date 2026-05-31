@@ -694,7 +694,7 @@
             document.getElementById('pantaya-debug-ticket').innerText = textoPreviewDebug;
 
             // --- 2. CONSTRUCCIÓN DE VENTANA DE IMPRESIÓN REAL ---
-            const ventanaImpresion = window.open('', '_blank', 'width=300,height=1600');
+            const ventanaImpresion = window.open('', '_blank', 'width=300,height=400');
             
             let codigoContenidoHTML = `
                 <html>
@@ -702,7 +702,7 @@
                     <style>
                         @media print {
                             @page { 
-                                size: 80mm auto !important; 
+                                size: 80mm 100mm !important; 
                                 orientation: portrait !important; 
                                 margin: 0 !important; 
                             }
@@ -714,7 +714,7 @@
                         }
                         body { 
                             margin: 0; 
-                            padding: 4mm 2mm; 
+                            padding: 4mm 2mm 30mm 2mm; 
                             width: 72mm; 
                             font-family: monospace; 
                             font-size: 12px; 
