@@ -113,13 +113,20 @@
         .tarjeta-producto .precio { font-weight: 800; color: var(--primario); font-size: 20px; }
 
         /* 3. TICKET SECCIÓN */
-        .ticket-section { background: var(--tarjeta-bg); border-left: 1px solid var(--borde); display: flex; flex-direction: column; }
+       .ticket-section { 
+    background: var(--tarjeta-bg); 
+    border-left: 1px solid var(--borde); 
+    display: flex; 
+    flex-direction: column; 
+    height: 100vh; /* 👈 Esto obliga a la barra lateral a ocupar solo la pantalla actual */
+    box-sizing: border-box;
+}
         .ticket-header { padding: 20px; border-bottom: 1px solid var(--borde); }
         .ticket-header h2 { margin: 0 0 15px 0; font-size: 18px; display: flex; align-items: center; gap: 10px; }
         .input-cliente { width: 100%; padding: 12px; border: 1px solid var(--borde); border-radius: 8px; box-sizing: border-box; font-size: 15px; outline: none; }
         .input-cliente:focus { border-color: var(--primario); }
 
-        .ticket-items { flex: 1; padding: 20px; overflow-y: auto; }
+        .ticket-items { flex: 1; padding: 10px 20px; overflow-y: auto; }
         .item-linea { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--borde); }
         .item-detalles .item-nombre { font-weight: 600; font-size: 15px; }
         .item-detalles .item-precio { font-size: 14px; color: #718096; }
@@ -130,7 +137,12 @@
         .btn-servicio { background: var(--gris-claro); color: var(--texto); border: 2px solid transparent; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-servicio.activo { background: #fdf2fe; border-color: var(--primario); color: var(--primario); }
 
-        .ticket-totales { padding: 20px; background: #f7fafc; border-top: 1px solid var(--borde); }
+        .ticket-totales { 
+    padding: 20px; 
+    background: #f7fafc; 
+    border-top: 1px solid var(--borde); 
+    flex-shrink: 0; /* 👈 ESTO clava el menú abajo y evita que los platos lo empujen */
+}
         .fila-total { display: flex; justify-content: space-between; font-size: 22px; font-weight: 700; margin-bottom: 15px; }
         .btn-cobrar { width: 100%; color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
 
