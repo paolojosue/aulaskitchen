@@ -717,14 +717,14 @@
                             padding: 4mm 2mm; 
                             width: 72mm; 
                             font-family: monospace; 
-                            font-size: 12px; 
+                            font-size: 20px; 
                             color: #000; 
                             line-height: 1.2;
                         }
                         .centro { text-align: center; }
                         .derecha { text-align: right; }
                         .negrita { font-weight: bold; }
-                        .titulo { font-size: 20px; font-weight: bold; text-transform: uppercase; }
+                        .titulo { font-size: 24px; font-weight: bold; text-transform: uppercase; }
                         .separador { border-top: 1px dashed #000; margin: 5px 0; }
                         .fila { display: flex; justify-content: space-between; }
                     </style>
@@ -738,7 +738,7 @@
                         <span class="titulo"> KITCHEN ORDER </span><br>
                         <span>${fechaHoraStr}</span>
                     </div>
-                    <div style="margin-top: 8px;">
+                    <div style="margin-top: 12px;">
                         <strong>BUZZER/REF:</strong> ${mesaRef.toUpperCase()}<br>
                         <strong>SERVICE:</strong> ${typeof tipoServicio !== 'undefined' ? tipoServicio.toUpperCase() : 'DINE IN'}
                     </div>
