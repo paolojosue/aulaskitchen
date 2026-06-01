@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aula's Kitchen POS - PaoNet</title>
+    <title>Aula's Kitchen - PaoNET</title>
     <style>
         :root {
             --bg-principal: #f8f9fa;
@@ -112,37 +112,39 @@
         .tarjeta-producto .nombre { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
         .tarjeta-producto .precio { font-weight: 800; color: var(--primario); font-size: 20px; }
 
-        /* 3. TICKET SECCIÓN */
-       .ticket-section { 
-    background: var(--tarjeta-bg); 
-    border-left: 1px solid var(--borde); 
-    display: flex; 
-    flex-direction: column; 
-    height: 100vh; /* 👈 Esto obliga a la barra lateral a ocupar solo la pantalla actual */
-    box-sizing: border-box;
-}
-        .ticket-header { padding: 20px; border-bottom: 1px solid var(--borde); }
+        /* 3. TICKET SECCIÓN - BARRA DE TOTALES FIJA */
+        .ticket-section { 
+            background: var(--tarjeta-bg); 
+            border-left: 1px solid var(--borde); 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .ticket-header { padding: 20px; border-bottom: 1px solid var(--borde); flex-shrink: 0; }
         .ticket-header h2 { margin: 0 0 15px 0; font-size: 18px; display: flex; align-items: center; gap: 10px; }
         .input-cliente { width: 100%; padding: 12px; border: 1px solid var(--borde); border-radius: 8px; box-sizing: border-box; font-size: 15px; outline: none; }
         .input-cliente:focus { border-color: var(--primario); }
 
-        .ticket-items { flex: 1; padding: 10px 20px; overflow-y: auto; }
+        /* Contenedor dinámico con scroll interno exclusivo */
+        .ticket-items { 
+            flex: 1; 
+            padding: 10px 20px; 
+            overflow-y: auto; 
+        }
         .item-linea { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--borde); }
         .item-detalles .item-nombre { font-weight: 600; font-size: 15px; }
         .item-detalles .item-precio { font-size: 14px; color: #718096; }
         .item-controles { display: flex; align-items: center; gap: 10px; }
         .btn-cantidad { background: var(--gris-claro); border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; }
-        
-        .selector-servicio { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-        .btn-servicio { background: var(--gris-claro); color: var(--texto); border: 2px solid transparent; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-servicio.activo { background: #fdf2fe; border-color: var(--primario); color: var(--primario); }
 
+        /* Contenedor del total y botones de abajo - Fijados al fondo */
         .ticket-totales { 
-    padding: 20px; 
-    background: #f7fafc; 
-    border-top: 1px solid var(--borde); 
-    flex-shrink: 0; /* 👈 ESTO clava el menú abajo y evita que los platos lo empujen */
-}
+            padding: 20px; 
+            background: #f7fafc; 
+            border-top: 1px solid var(--borde); 
+            flex-shrink: 0; 
+        }
         .fila-total { display: flex; justify-content: space-between; font-size: 22px; font-weight: 700; margin-bottom: 15px; }
         .btn-cobrar { width: 100%; color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
 
@@ -203,38 +205,6 @@
 
         .resultado-split { font-size: 16px; font-weight: 600; color: #4a5568; margin-bottom: 25px; padding: 10px; border-radius: 8px; background: #faf5ff; border: 1px dashed #d6bcfa; }
         .resultado-split strong { font-size: 22px; color: #805ad5; }
-        <div class="modal-admin" id="modalCalculadora">
-    <div style="background: white; padding: 20px; border-radius: 16px; width: 320px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid var(--borde);">
-        <h2 style="margin: 0 0 15px 0; font-size: 20px; text-align: center;">🧮 Cash Calculator</h2>
-        
-        <input type="text" id="pantalla-calc" readonly style="width: 100%; padding: 15px; font-size: 24px; font-weight: bold; text-align: right; border: 2px solid var(--borde); border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; background: #f7fafc; color: #2d3748;">
-        
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px;">
-            <button onclick="calcPresionar('7')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">7</button>
-            <button onclick="calcPresionar('8')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">8</button>
-            <button onclick="calcPresionar('9')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">9</button>
-            <button onclick="calcOperacion('/')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; background: #edf2f7; border: 1px solid #cbd5e0; cursor: pointer;">÷</button>
-
-            <button onclick="calcPresionar('4')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">4</button>
-            <button onclick="calcPresionar('5')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">5</button>
-            <button onclick="calcPresionar('6')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">6</button>
-            <button onclick="calcOperacion('*')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; background: #edf2f7; border: 1px solid #cbd5e0; cursor: pointer;">×</button>
-
-            <button onclick="calcPresionar('1')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">1</button>
-            <button onclick="calcPresionar('2')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">2</button>
-            <button onclick="calcPresionar('3')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">3</button>
-            <button onclick="calcOperacion('-')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; background: #edf2f7; border: 1px solid #cbd5e0; cursor: pointer;">-</button>
-
-            <button onclick="calcPresionar('0')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">0</button>
-            <button onclick="calcPresionar('.')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">.</button>
-            <button onclick="calcLimpiar()" style="padding: 15px; font-size: 16px; font-weight: bold; border-radius: 8px; background: #e53e3e; color: white; border: none; cursor: pointer;">C</button>
-            <button onclick="calcOperacion('+')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; background: #edf2f7; border: 1px solid #cbd5e0; cursor: pointer;">+</button>
-        </div>
-
-        <button onclick="calcResultado()" style="width: 100%; padding: 15px; font-size: 20px; font-weight: bold; background: #41a06e; color: white; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 10px;">=</button>
-        <button onclick="cerrarCalculadora()" style="width: 100%; padding: 10px; font-size: 14px; font-weight: bold; background: #718096; color: white; border: none; border-radius: 8px; cursor: pointer;">Close</button>
-    </div>
-</div>
 
         /* TECLADO VIRTUAL DESPLEGABLE TÁCTIL */
         .teclado-virtual {
@@ -262,7 +232,7 @@
             border-radius: 8px;
             font-family: monospace;
             font-size: 11px;
-            max-height: 180px;
+            max-height: 140px;
             overflow-y: auto;
             border: 2px solid #2d3748;
             white-space: pre-wrap;
@@ -273,14 +243,12 @@
 <body>
 
     <div class="app-container">
-        <!-- 1. Izquierda: Categorías -->
         <div class="sidebar-categorias">
             <div class="lista-botones-cat">
                 <h3>Menu</h3>
                 <div id="barra-categorias"></div>
             </div>
             
-            <!-- Panel Monitor de Depuración Visual -->
             <div>
                 <div style="font-size: 11px; font-weight: bold; color: #718096; margin-bottom: 4px;">🖨️ Ticket Spooler Preview:</div>
                 <div id="pantaya-debug-ticket" class="monitor-vista-previa">Waiting for print action...</div>
@@ -288,7 +256,6 @@
             </div>
         </div>
 
-        <!-- 2. Centro: Grid de platos -->
         <div class="menu-section">
             <div class="header-menu">
                 <h1>🍽️ Orders Dashboard</h1>
@@ -296,7 +263,6 @@
             <div class="grid-productos" id="grid-productos"></div>
         </div>
 
-        <!-- 3. Derecha: Módulo de Cobro -->
         <div class="ticket-section">
             <div class="ticket-header">
                 <h2>📋 Current Order</h2>
@@ -311,7 +277,7 @@
                     <button onclick="parkOrder()" style="background:#dd6b20; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">⏳ Park</button>
                     <button onclick="abrirModalDescuento()" style="background:#3182ce; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🏷️ Disc.</button>
                     <button onclick="splitBill()" style="background:#805ad5; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🔀 Split</button>
-                   <button onclick="abrirCalculadora()" style="background:#4a5568; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🧮 Calc</button> </div>
+                    <button onclick="abrirCalculadora()" style="background:#4a5568; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🧮 Calc</button>
                 </div>
 
                 <div class="fila-total">
@@ -319,7 +285,6 @@
                     <span id="total-pago">$0.00</span>
                 </div>
                 
-                <!-- DOS BOTONES INDEPENDIENTES DE IMPRESIÓN -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <button class="btn-cobrar" style="background: #3182ce;" onclick="ejecutarImpresionEspecial('cocina')">🍳 Only Kitchen</button>
                     <button class="btn-cobrar" style="background: #41a06e;" onclick="ejecutarImpresionEspecial('invoice')">💵 Only Invoice</button>
@@ -328,7 +293,6 @@
         </div>
     </div>
 
-    <!-- PANEL ADMINISTRADOR DE MENÚ -->
     <div class="modal-admin" id="modalAdmin">
         <div class="modal-contenido">
             <h2>⚙️ Menu Manager Dashboard</h2>
@@ -352,7 +316,6 @@
         </div>
     </div>
 
-    <!-- DASHBOARD MODAL DE DESCUENTOS -->
     <div class="modal-admin" id="modalDescuento">
         <div class="modal-descuento-contenido">
             <h2>🏷️ Order Discount</h2>
@@ -372,7 +335,6 @@
         </div>
     </div>
 
-    <!-- DASHBOARD MODAL DE SPLIT -->
     <div class="modal-admin" id="modalSplit">
         <div class="modal-split-contenido">
             <h2>🔀 Split Bill</h2>
@@ -397,7 +359,39 @@
         </div>
     </div>
 
-    <!-- TECLADO VIRTUAL DE PANTALLA -->
+    <div class="modal-admin" id="modalCalculadora">
+        <div style="background: white; padding: 20px; border-radius: 16px; width: 320px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid var(--borde);">
+            <h2 style="margin: 0 0 15px 0; font-size: 20px; text-align: center;">🧮 Cash Calculator</h2>
+            
+            <input type="text" id="pantalla-calc" readonly style="width: 100%; padding: 15px; font-size: 24px; font-weight: bold; text-align: right; border: 2px solid var(--borde); border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; background: #f7fafc; color: #2d3748;">
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px;">
+                <button onclick="calcPresionar('7')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">7</button>
+                <button onclick="calcPresionar('8')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">8</button>
+                <button onclick="calcPresionar('9')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">9</button>
+                <button onclick="calcOperacion('/')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; background: #edf2f7; border: 1px solid #cbd5e0; cursor: pointer;">÷</button>
+
+                <button onclick="calcPresionar('4')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">4</button>
+                <button onclick="calcPresionar('5')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">5</button>
+                <button onclick="calcPresionar('6')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">6</button>
+                <button onclick="calcOperacion('*')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; background: #edf2f7; border: 1px solid #cbd5e0; cursor: pointer;">×</button>
+
+                <button onclick="calcPresionar('1')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">1</button>
+                <button onclick="calcPresionar('2')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">2</button>
+                <button onclick="calcPresionar('3')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">3</button>
+                <button onclick="calcOperacion('-')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; background: #edf2f7; border: 1px solid #cbd5e0; cursor: pointer;">-</button>
+
+                <button onclick="calcPresionar('0')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">0</button>
+                <button onclick="calcPresionar('.')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">.</button>
+                <button onclick="calcLimpiar()" style="padding: 15px; font-size: 16px; font-weight: bold; border-radius: 8px; background: #e53e3e; color: white; border: none; cursor: pointer;">C</button>
+                <button onclick="calcOperacion('+')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; background: #edf2f7; border: 1px solid #cbd5e0; cursor: pointer;">+</button>
+            </div>
+
+            <button onclick="calcResultado()" style="width: 100%; padding: 15px; font-size: 20px; font-weight: bold; background: #41a06e; color: white; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 10px;">=</button>
+            <button onclick="cerrarCalculadora()" style="width: 100%; padding: 10px; font-size: 14px; font-weight: bold; background: #718096; color: white; border: none; border-radius: 8px; cursor: pointer;">Close</button>
+        </div>
+    </div>
+
     <div id="tecladoVirtual" class="teclado-virtual">
         <div class="teclado-fila">
             <button class="teclado-tecla" onclick="escribirTecla('1')">1</button>
@@ -487,7 +481,7 @@
         let porcentajeSeleccionado = 0;
         let categoriasReales = [];
         let categoriaSeleccionada = ""; 
-        let tipoServicio = "Dine In";
+        let operacionPendiente = "";
 
         function guardarMenuEnMemoria() {
             localStorage.setItem('pos_menu_data', JSON.stringify(menu));
@@ -529,14 +523,6 @@
                         <div class="precio" style="color: #b525b8;">Variable</div>
                     </div>`;
             }
-        }
-
-        function cambiarServicio(tipo) {
-            tipoServicio = tipo;
-            document.getElementById('btn-dine').classList.remove('activo');
-            document.getElementById('btn-take').classList.remove('activo');
-            if(tipo === 'Dine In') document.getElementById('btn-dine').classList.add('activo');
-            else document.getElementById('btn-take').classList.add('activo');
         }
 
         function agregarProducto(id) {
@@ -600,7 +586,7 @@
         function parkOrder() {
             if (carrito.length === 0) return alert("Add items first.");
             const cliente = document.getElementById('cliente').value || `Table ${ordenesParqueadas.length + 1}`;
-            ordenesParqueadas.push({ id: Date.now(), cliente, items: [...carrito], tipoServicio });
+            ordenesParqueadas.push({ id: Date.now(), cliente, items: [...carrito] });
             carrito = []; descuentoActual = 0; document.getElementById('cliente').value = '';
             actualizarInterfazPantalla(); renderizarOrdenesParqueadas();
         }
@@ -621,7 +607,7 @@
         function recuperarOrden(id) {
             const orden = ordenesParqueadas.find(o => o.id === id); if (!orden) return;
             carrito = [...orden.items]; document.getElementById('cliente').value = orden.cliente;
-            cambiarServicio(orden.tipoServicio); ordenesParqueadas = ordenesParqueadas.filter(o => o.id !== id);
+            ordenesParqueadas = ordenesParqueadas.filter(o => o.id !== id);
             actualizarInterfazPantalla(); renderizarOrdenesParqueadas();
         }
 
@@ -690,7 +676,35 @@
             document.getElementById('split-resultado-pago').innerText = `$${(subtotal / personas).toFixed(2)} NZD`;
         }
 
-        /* 📊 SISTEMA DE IMPRESIÓN SEPARADO CON FORMATO VERTICAL SEGURO */
+        /* LÓGICA DE LA CALCULADORA BÁSICA */
+        function abrirCalculadora() { calcLimpiar(); document.getElementById('modalCalculadora').style.display = 'flex'; }
+        function cerrarCalculadora() { document.getElementById('modalCalculadora').style.display = 'none'; }
+        function calcPresionar(num) {
+            const pantalla = document.getElementById('pantalla-calc');
+            if (num === '.' && pantalla.value.includes('.')) return;
+            pantalla.value += num;
+        }
+        function calcOperacion(op) {
+            const pantalla = document.getElementById('pantalla-calc');
+            if (pantalla.value === "") return;
+            operacionPendiente += pantalla.value + " " + op + " ";
+            pantalla.value = "";
+        }
+        function calcLimpiar() { document.getElementById('pantalla-calc').value = ""; operacionPendiente = ""; }
+        function calcResultado() {
+            const pantalla = document.getElementById('pantalla-calc');
+            if (pantalla.value === "" && operacionPendiente === "") return;
+            operacionPendiente += pantalla.value;
+            try {
+                let resultado = eval(operacionPendiente);
+                pantalla.value = Number(resultado.toFixed(2));
+                operacionPendiente = "";
+            } catch (error) {
+                pantalla.value = "Error"; operacionPendiente = "";
+            }
+        }
+
+        /* SISTEMA DE IMPRESIÓN SEPARADO */
         function ejecutarImpresionEspecial(tipo) {
             if (carrito.length === 0) return alert("Please add products first.");
 
@@ -705,66 +719,44 @@
             const tiempo = new Date();
             const fechaHoraStr = tiempo.toLocaleDateString('en-NZ') + " " + tiempo.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-            // --- 1. MONITOR VISUAL (LETRAS VERDES) ---
+            // Monitor en pantalla
             let textoPreviewDebug = "";
             textoPreviewDebug += `=== MONITOR: TRANSMISSION LOG ===\n`;
             
             if (tipo === 'cocina') {
                 textoPreviewDebug += `[START KITCHEN TICKET]\n`;
                 textoPreviewDebug += `DATE: ${fechaHoraStr}\n`;
-                textoPreviewDebug += `BUZZER/REF: ${mesaRef.toUpperCase()} | ${tipoServicio.toUpperCase()}\n`;
+                textoPreviewDebug += `BUZZER/REF: ${mesaRef.toUpperCase()}\n`;
                 textoPreviewDebug += `--------------------------------\n`;
-                carrito.forEach(item => {
-                    textoPreviewDebug += `${item.cantidad} x ${item.nombre}\n`;
-                });
+                carrito.forEach(item => { textoPreviewDebug += `${item.cantidad} x ${item.nombre}\n`; });
                 textoPreviewDebug += `--------------------------------\n`;
             } else if (tipo === 'invoice') {
                 textoPreviewDebug += `[START CUSTOMER INVOICE]\n`;
                 textoPreviewDebug += `AULA'S KITCHEN (GST Reg)\n`;
                 textoPreviewDebug += `DATE: ${fechaHoraStr} | REF: ${mesaRef}\n`;
                 textoPreviewDebug += `--------------------------------\n`;
-                carrito.forEach(item => {
-                    textoPreviewDebug += `${item.cantidad}x ${item.nombre} -> $${(item.precio * item.cantidad).toFixed(2)}\n`;
-                });
+                carrito.forEach(item => { textoPreviewDebug += `${item.cantidad}x ${item.nombre} -> $${(item.precio * item.cantidad).toFixed(2)}\n`; });
                 if(descuentoActual > 0) textoPreviewDebug += `Discount: -$${descuentoActual.toFixed(2)}\n`;
                 textoPreviewDebug += `TOTAL DUE: $${totalFinal.toFixed(2)}\n`;
                 textoPreviewDebug += `================================`;
             }
-
             document.getElementById('pantaya-debug-ticket').innerText = textoPreviewDebug;
 
-            // --- 2. CONSTRUCCIÓN DE VENTANA DE IMPRESIÓN REAL ---
+            // Ventana de Impresión Física segura con márgenes corregidos
             const ventanaImpresion = window.open('', '_blank', 'width=300,height=400');
-            
             let codigoContenidoHTML = `
                 <html>
                 <head>
                     <style>
                         @media print {
-                            @page { 
-                                size: 80mm auto !important; 
-                                orientation: portrait !important; 
-                                margin: 0 !important; 
-                            }
-                            html, body {
-                                margin: 0 !important;
-                                padding: 0 !important;
-                                width: 72mm !important;
-                            }
+                            @page { size: 80mm auto !important; orientation: portrait !important; margin: 0 !important; }
+                            html, body { margin: 0 !important; padding: 0 !important; width: 72mm !important; }
                         }
-                        body { 
-                            margin: 0; 
-                            padding: 4mm 2mm; 
-                            width: 72mm; 
-                            font-family: monospace; 
-                            font-size: 16px; 
-                            color: #000; 
-                            line-height: 1.2;
-                        }
+                        body { margin: 0; padding: 4mm 2mm 30mm 2mm; width: 72mm; font-family: monospace; font-size: 12px; color: #000; line-height: 1.2; }
                         .centro { text-align: center; }
                         .derecha { text-align: right; }
                         .negrita { font-weight: bold; }
-                        .titulo { font-size: 24px; font-weight: bold; text-transform: uppercase; }
+                        .titulo { font-size: 14px; font-weight: bold; text-transform: uppercase; }
                         .separador { border-top: 1px dashed #000; margin: 5px 0; }
                         .fila { display: flex; justify-content: space-between; }
                     </style>
@@ -778,22 +770,14 @@
                         <span class="titulo"> KITCHEN ORDER </span><br>
                         <span>${fechaHoraStr}</span>
                     </div>
-                    <div style="margin-top: 12px;">
+                    <div style="margin-top: 8px;">
                         <strong>BUZZER/REF:</strong> ${mesaRef.toUpperCase()}<br>
-                        <strong>SERVICE:</strong> ${typeof tipoServicio !== 'undefined' ? tipoServicio.toUpperCase() : 'DINE IN'}
                     </div>
                     <div class="separador"></div>
                     <div class="negrita">
                 `;
-                
-                carrito.forEach(item => {
-                    codigoContenidoHTML += `<div style="padding: 2px 0;"> ${item.cantidad} ${item.nombre}</div>`;
-                });
-
-                codigoContenidoHTML += `
-                    </div>
-                    <div class="separador"></div>
-                `;
+                carrito.forEach(item => { codigoContenidoHTML += `<div style="padding: 2px 0;">[ ] ${item.cantidad} x ${item.nombre}</div>`; });
+                codigoContenidoHTML += `</div><div class="separador"></div>`;
             }
 
             if (tipo === 'invoice') {
@@ -807,29 +791,17 @@
                     <div>
                         <strong>Date:</strong> ${fechaHoraStr}<br>
                         <strong>Buzzer/Ref:</strong> ${mesaRef}<br>
-                        <strong>Service:</strong> ${typeof tipoServicio !== 'undefined' ? tipoServicio.toUpperCase() : 'DINE IN'}<br>
                     </div>
                     <div class="separador"></div>
                 `;
-
                 carrito.forEach(item => {
                     let totalLinea = item.precio * item.cantidad;
-                    codigoContenidoHTML += `
-                        <div class="fila">
-                            <span>${item.cantidad}x ${item.nombre}</span>
-                            <span>$${totalLinea.toFixed(2)}</span>
-                        </div>`;
+                    codigoContenidoHTML += `<div class="fila"><span>${item.cantidad}x ${item.nombre}</span><span>$${totalLinea.toFixed(2)}</span></div>`;
                 });
-
-                codigoContenidoHTML += `
-                        <div class="separador"></div>
-                        <div class="derecha">
-                `;
-
+                codigoContenidoHTML += `<div class="separador"></div><div class="derecha">`;
                 if (typeof descuentoActual !== 'undefined' && descuentoActual > 0) {
                     codigoContenidoHTML += `<div>Discount: -$${descuentoActual.toFixed(2)}</div>`;
                 }
-
                 codigoContenidoHTML += `
                             <div>TOTAL (GST Incl.): <span class="negrita">$${totalFinal.toFixed(2)}</span></div>
                             <div style="font-size: 11px;">Includes GST (15%): $${gstCalculado.toFixed(2)}</div>
@@ -839,20 +811,14 @@
                 `;
             }
 
-            codigoContenidoHTML += `
-                </body>
-                </html>
-            `;
-
+            codigoContenidoHTML += `</body></html>`;
             ventanaImpresion.document.write(codigoContenidoHTML);
             ventanaImpresion.document.close();
             
             setTimeout(() => {
                 ventanaImpresion.print();
                 ventanaImpresion.close();
-                if (tipo === 'invoice' && typeof limpiarCarrito === 'function') {
-                    limpiarCarrito(); 
-                }
+                if (tipo === 'invoice' && typeof limpiarCarrito === 'function') { limpiarCarrito(); }
             }, 250);
         }
 
@@ -878,7 +844,7 @@
         /* VIRTUAL KEYBOARD CONTROLS */
         let inputActivoActual = null;
         document.addEventListener('focusin', function(e) {
-            if (e.target.tagName === 'INPUT') { inputActivoActual = e.target; document.getElementById('tecladoVirtual').classList.add('activo'); }
+            if (e.target.tagName === 'INPUT' && e.target.id !== 'pantalla-calc') { inputActivoActual = e.target; document.getElementById('tecladoVirtual').classList.add('activo'); }
         });
         function escribirTecla(caracter) { if (inputActivoActual) { inputActivoActual.value += caracter; inputActivoActual.dispatchEvent(new Event('input', { bubbles: true })); } }
         function borrarTecla() { if (inputActivoActual && inputActivoActual.value.length > 0) { inputActivoActual.value = inputActivoActual.value.slice(0, -1); inputActivoActual.dispatchEvent(new Event('input', { bubbles: true })); } }
@@ -887,7 +853,7 @@
             if (!e.target.closest('input') && !e.target.closest('.teclado-virtual') && !e.target.closest('.tarjeta-producto') && !e.target.closest('button')) { ocultarTecladoVirtual(); }
         });
 
-        /* CORE INITIALIZATION - LIMPIEZA FORZADA DE MEMORIA */
+        /* CORE INITIALIZATION */
         if (!localStorage.getItem('pos_menu_v3_forzado')) {
             localStorage.clear(); 
             menu = platosBase;
@@ -895,62 +861,12 @@
             localStorage.setItem('pos_menu_v3_forzado', 'true');
         }
 
-        // Cargar datos limpios estructurados
         menu = JSON.parse(localStorage.getItem('pos_menu_data')) || platosBase;
         categoriasReales = [...new Set(menu.map(p => p.categoria))];
         categoriaSeleccionada = categoriasReales[0] || "STUFFED PITA BREAD";
 
-        // Iniciar interfaz visual de inmediato
         renderizarCategorias(); 
         renderizarMenu();
-        /* LÓGICA DE LA CALCULADORA BÁSICA */
-        let operacionPendiente = "";
-
-        function abrirCalculadora() {
-            calcLimpiar();
-            document.getElementById('modalCalculadora').style.display = 'flex';
-        }
-
-        function cerrarCalculadora() {
-            document.getElementById('modalCalculadora').style.display = 'none';
-        }
-
-        function calcPresionar(num) {
-            const pantalla = document.getElementById('pantalla-calc');
-            // Evitar múltiples puntos decimales
-            if (num === '.' && pantalla.value.includes('.')) return;
-            pantalla.value += num;
-        }
-
-        function calcOperacion(op) {
-            const pantalla = document.getElementById('pantalla-calc');
-            if (pantalla.value === "") return;
-            // Guardamos el número actual y el operador en un string para evaluarlo luego
-            operacionPendiente += pantalla.value + " " + op + " ";
-            pantalla.value = "";
-        }
-
-        function calcLimpiar() {
-            document.getElementById('pantalla-calc').value = "";
-            operacionPendiente = "";
-        }
-
-        function calcResultado() {
-            const pantalla = document.getElementById('pantalla-calc');
-            if (pantalla.value === "" && operacionPendiente === "") return;
-            
-            operacionPendiente += pantalla.value;
-            try {
-                // eval() procesará sumas, restas, multiplicaciones de manera segura aquí
-                let resultado = eval(operacionPendiente);
-                // Redondear a dos decimales por si acaso son precios/vueltos
-                pantalla.value = Number(resultado.toFixed(2));
-                operacionPendiente = "";
-            } catch (error) {
-                pantalla.value = "Error";
-                operacionPendiente = "";
-            }
-        }
     </script>
 </body>
 </html>
