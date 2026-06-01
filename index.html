@@ -203,6 +203,38 @@
 
         .resultado-split { font-size: 16px; font-weight: 600; color: #4a5568; margin-bottom: 25px; padding: 10px; border-radius: 8px; background: #faf5ff; border: 1px dashed #d6bcfa; }
         .resultado-split strong { font-size: 22px; color: #805ad5; }
+        <div class="modal-admin" id="modalCalculadora">
+    <div style="background: white; padding: 20px; border-radius: 16px; width: 320px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid var(--borde);">
+        <h2 style="margin: 0 0 15px 0; font-size: 20px; text-align: center;">🧮 Cash Calculator</h2>
+        
+        <input type="text" id="pantalla-calc" readonly style="width: 100%; padding: 15px; font-size: 24px; font-weight: bold; text-align: right; border: 2px solid var(--borde); border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; background: #f7fafc; color: #2d3748;">
+        
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px;">
+            <button onclick="calcPresionar('7')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">7</button>
+            <button onclick="calcPresionar('8')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">8</button>
+            <button onclick="calcPresionar('9')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">9</button>
+            <button onclick="calcOperacion('/')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; background: #edf2f7; border: 1px solid #cbd5e0; cursor: pointer;">÷</button>
+
+            <button onclick="calcPresionar('4')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">4</button>
+            <button onclick="calcPresionar('5')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">5</button>
+            <button onclick="calcPresionar('6')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">6</button>
+            <button onclick="calcOperacion('*')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; background: #edf2f7; border: 1px solid #cbd5e0; cursor: pointer;">×</button>
+
+            <button onclick="calcPresionar('1')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">1</button>
+            <button onclick="calcPresionar('2')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">2</button>
+            <button onclick="calcPresionar('3')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">3</button>
+            <button onclick="calcOperacion('-')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; background: #edf2f7; border: 1px solid #cbd5e0; cursor: pointer;">-</button>
+
+            <button onclick="calcPresionar('0')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">0</button>
+            <button onclick="calcPresionar('.')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; border: 1px solid #cbd5e0; cursor: pointer;">.</button>
+            <button onclick="calcLimpiar()" style="padding: 15px; font-size: 16px; font-weight: bold; border-radius: 8px; background: #e53e3e; color: white; border: none; cursor: pointer;">C</button>
+            <button onclick="calcOperacion('+')" style="padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; background: #edf2f7; border: 1px solid #cbd5e0; cursor: pointer;">+</button>
+        </div>
+
+        <button onclick="calcResultado()" style="width: 100%; padding: 15px; font-size: 20px; font-weight: bold; background: #41a06e; color: white; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 10px;">=</button>
+        <button onclick="cerrarCalculadora()" style="width: 100%; padding: 10px; font-size: 14px; font-weight: bold; background: #718096; color: white; border: none; border-radius: 8px; cursor: pointer;">Close</button>
+    </div>
+</div>
 
         /* TECLADO VIRTUAL DESPLEGABLE TÁCTIL */
         .teclado-virtual {
@@ -274,16 +306,12 @@
             <div class="ticket-items" id="lista-articulos-pantalla"></div>
 
             <div class="ticket-totales">
-                <div class="selector-servicio">
-                    <button class="btn-servicio activo" id="btn-dine" onclick="cambiarServicio('Dine In')">🪑 Dine In</button>
-                    <button class="btn-servicio" id="btn-take" onclick="cambiarServicio('Take Away')">🛍️ Take Away</button>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 15px;">
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 15px;">
                     <button onclick="limpiarCarrito()" style="background:#e53e3e; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🗑️ Clear</button>
                     <button onclick="parkOrder()" style="background:#dd6b20; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">⏳ Park</button>
                     <button onclick="abrirModalDescuento()" style="background:#3182ce; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🏷️ Disc.</button>
                     <button onclick="splitBill()" style="background:#805ad5; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🔀 Split</button>
+                   <button onclick="abrirCalculadora()" style="background:#4a5568; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🧮 Calc</button> </div>
                 </div>
 
                 <div class="fila-total">
@@ -875,6 +903,54 @@
         // Iniciar interfaz visual de inmediato
         renderizarCategorias(); 
         renderizarMenu();
+        /* LÓGICA DE LA CALCULADORA BÁSICA */
+        let operacionPendiente = "";
+
+        function abrirCalculadora() {
+            calcLimpiar();
+            document.getElementById('modalCalculadora').style.display = 'flex';
+        }
+
+        function cerrarCalculadora() {
+            document.getElementById('modalCalculadora').style.display = 'none';
+        }
+
+        function calcPresionar(num) {
+            const pantalla = document.getElementById('pantalla-calc');
+            // Evitar múltiples puntos decimales
+            if (num === '.' && pantalla.value.includes('.')) return;
+            pantalla.value += num;
+        }
+
+        function calcOperacion(op) {
+            const pantalla = document.getElementById('pantalla-calc');
+            if (pantalla.value === "") return;
+            // Guardamos el número actual y el operador en un string para evaluarlo luego
+            operacionPendiente += pantalla.value + " " + op + " ";
+            pantalla.value = "";
+        }
+
+        function calcLimpiar() {
+            document.getElementById('pantalla-calc').value = "";
+            operacionPendiente = "";
+        }
+
+        function calcResultado() {
+            const pantalla = document.getElementById('pantalla-calc');
+            if (pantalla.value === "" && operacionPendiente === "") return;
+            
+            operacionPendiente += pantalla.value;
+            try {
+                // eval() procesará sumas, restas, multiplicaciones de manera segura aquí
+                let resultado = eval(operacionPendiente);
+                // Redondear a dos decimales por si acaso son precios/vueltos
+                pantalla.value = Number(resultado.toFixed(2));
+                operacionPendiente = "";
+            } catch (error) {
+                pantalla.value = "Error";
+                operacionPendiente = "";
+            }
+        }
     </script>
 </body>
 </html>
