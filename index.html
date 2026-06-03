@@ -272,6 +272,10 @@
             <div class="ticket-items" id="lista-articulos-pantalla"></div>
 
             <div class="ticket-totales">
+                 <div class="fila-total">
+                    <span>Total:</span>
+                    <span id="total-pago">$0.00</span>
+                </div>
                 <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 15px;">
                     <button onclick="limpiarCarrito()" style="background:#e53e3e; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🗑️ Clear</button>
                     <button onclick="parkOrder()" style="background:#dd6b20; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">⏳ Park</button>
@@ -280,10 +284,7 @@
                     <button onclick="abrirCalculadora()" style="background:#4a5568; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🧮 Calc</button>
                 </div>
 
-                <div class="fila-total">
-                    <span>Total:</span>
-                    <span id="total-pago">$0.00</span>
-                </div>
+               
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <button class="btn-cobrar" style="background: #3182ce;" onclick="ejecutarImpresionEspecial('cocina')">🍳 Only Kitchen</button>
