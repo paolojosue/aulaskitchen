@@ -145,13 +145,13 @@
             border-top: 1px solid var(--borde); 
             flex-shrink: 0; 
         }
-        .fila-total { display: flex; justify-content: space-between; font-size: 22px; font-weight: 700; margin-bottom: 15px; }
+        .fila-total { display: flex; justify-content: space-between; font-size: 32px; font-weight: 700; margin-bottom: 15px; }
         .btn-cobrar { width: 100%; color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
 
         /* VENTANAS MODALES GENERALES */
         .modal-admin {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;
         }
         .modal-contenido {
             background: white; padding: 30px; border-radius: 12px; width: 600px; max-height: 85vh;
@@ -249,10 +249,12 @@
                 <div id="barra-categorias"></div>
             </div>
             
-            <div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
                 <div style="font-size: 11px; font-weight: bold; color: #718096; margin-bottom: 4px;">🖨️ Ticket Spooler Preview:</div>
                 <div id="pantaya-debug-ticket" class="monitor-vista-previa">Waiting for print action...</div>
-                <button class="btn-ajustes" style="width:100%; margin-top:10px;" onclick="abrirPanelAdmin()">⚙️ Manage Menu</button>
+                
+                <button class="btn-ajustes" style="width:100%; background: #41a06e; color: white;" onclick="abrirPanelVentas()">📊 Sales of the Day</button>
+                <button class="btn-ajustes" style="width:100%;" onclick="abrirPanelAdmin()">⚙️ Manage Menu</button>
             </div>
         </div>
 
@@ -272,6 +274,11 @@
             <div class="ticket-items" id="lista-articulos-pantalla"></div>
 
             <div class="ticket-totales">
+                <div class="fila-total">
+                    <span>Total:</span>
+                    <span id="total-pago">$0.00</span>
+                </div>
+
                 <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 15px;">
                     <button onclick="limpiarCarrito()" style="background:#e53e3e; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🗑️ Clear</button>
                     <button onclick="parkOrder()" style="background:#dd6b20; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">⏳ Park</button>
@@ -279,17 +286,37 @@
                     <button onclick="splitBill()" style="background:#805ad5; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🔀 Split</button>
                     <button onclick="abrirCalculadora()" style="background:#4a5568; color:white; border:none; padding:12px 5px; border-radius:8px; font-weight:bold; font-size:14px; cursor:pointer;">🧮 Calc</button>
                 </div>
-
-                <div class="fila-total">
-                    <span>Total:</span>
-                    <span id="total-pago">$0.00</span>
-                </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <button class="btn-cobrar" style="background: #3182ce;" onclick="ejecutarImpresionEspecial('cocina')">🍳 Only Kitchen</button>
                     <button class="btn-cobrar" style="background: #41a06e;" onclick="ejecutarImpresionEspecial('invoice')">💵 Only Invoice</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="modal-admin" id="modalVentas">
+        <div class="modal-contenido" style="width: 750px; max-width: 90vw;">
+            <h2>📊 Sales of the Day</h2>
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; margin-top: 15px;">
+                <div style="max-height: 45vh; overflow-y: auto; border: 1px solid var(--borde); border-radius: 8px;">
+                    <table class="tabla-items-admin" style="margin-top:0;">
+                        <thead style="position: sticky; top:0; background: white; z-index:1;">
+                            <tr><th>Time</th><th>Reference</th><th>Total</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="tabla-ventas-cuerpo"></tbody>
+                    </table>
+                </div>
+                <div style="background: #f7fafc; border: 1px dashed #cbd5e0; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <h4 style="margin: 0 0 8px 0; color: #4a5568;">📄 Ticket Invoice Preview</h4>
+                        <pre id="visor-invoice-texto" style="background: white; border: 1px solid var(--borde); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 11px; white-space: pre-wrap; margin: 0; min-height: 220px; max-height: 35vh; overflow-y: auto; color: #2d3748;">Select an order...</pre>
+                    </div>
+                    <button id="btn-reimprimir-historial" disabled class="btn-cobrar" style="background: #41a06e; margin-top: 10px; font-size: 14px; padding: 10px;" onclick="reimprimirInvoiceSeleccionado()">🖨️ Reprint Invoice</button>
+                </div>
+            </div>
+            <br>
+            <button class="btn-ajustes" style="width: 100%; background: var(--texto); color: white;" onclick="cerrarPanelVentas()">Close Panel</button>
         </div>
     </div>
 
@@ -482,6 +509,10 @@
         let categoriasReales = [];
         let categoriaSeleccionada = ""; 
         let operacionPendiente = "";
+
+        // Inicialización de historial local seguro
+        let historialVentas = JSON.parse(localStorage.getItem('pos_historial_ventas_reales')) || [];
+        let ventaSeleccionada = null;
 
         function guardarMenuEnMemoria() {
             localStorage.setItem('pos_menu_data', JSON.stringify(menu));
@@ -704,6 +735,96 @@
             }
         }
 
+        /* HISTORIAL DE VENTAS CONTROL */
+        function registrarVentaInmediata(ref, total, items, descuento) {
+            const tiempo = new Date();
+            const horaStr = tiempo.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const fechaStr = tiempo.toLocaleDateString('en-NZ');
+            
+            const transaccion = {
+                id: Date.now(),
+                fecha: fechaStr,
+                hora: horaStr,
+                cliente: ref,
+                total: parseFloat(total).toFixed(2),
+                descuento: descuento,
+                articulos: [...items]
+            };
+
+            historialVentas.unshift(transaccion);
+            localStorage.setItem('pos_historial_ventas_reales', JSON.stringify(historialVentas));
+        }
+
+        function abrirPanelVentas() {
+            document.getElementById('modalVentas').style.display = 'flex';
+            const tbody = document.getElementById('tabla-ventas-cuerpo');
+            tbody.innerHTML = '';
+
+            if (historialVentas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#a0aec0; padding:20px;">No sales registered yet.</td></tr>';
+                return;
+            }
+
+            historialVentas.forEach(v => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span style="font-size:11px; color:#718096;">${v.fecha}</span><br><strong>${v.hora}</strong></td>
+                        <td><strong>${v.cliente.toUpperCase()}</strong></td>
+                        <td style="color:#b525b8; font-weight:bold;">$${v.total}</td>
+                        <td><button class="btn-ajustes" style="padding:4px 8px; font-size:12px;" onclick="verDetalleInvoiceHistorial(${v.id})">👁️ View</button></td>
+                    </tr>`;
+            });
+        }
+
+        function verDetalleInvoiceHistorial(id) {
+            const v = historialVentas.find(x => x.id === id);
+            if (!v) return;
+
+            ventaSeleccionada = v;
+            let gst = v.total / 7.6667;
+            
+            let txt = `TAX INVOICE\nKIWI BITES CAFE (GST Reg)\n`;
+            txt += `Date: ${v.fecha} ${v.hora}\nRef: ${v.cliente}\n--------------------------------\n`;
+            v.articulos.forEach(i => { txt += `${i.cantidad}x ${i.nombre} -> $${(i.precio * i.cantidad).toFixed(2)}\n`; });
+            txt += `--------------------------------\n`;
+            if (v.descuento > 0) txt += `Discount: -$${parseFloat(v.descuento).toFixed(2)}\n`;
+            txt += `TOTAL DUE: $${v.total}\nIncludes GST (15%): $${gst.toFixed(2)}\n================================`;
+
+            document.getElementById('visor-invoice-texto').innerText = txt;
+            document.getElementById('btn-reimprimir-historial').disabled = false;
+        }
+
+        function reimprimirInvoiceSeleccionado() {
+            if (!ventaSeleccionada) return;
+            const v = ventaSeleccionada;
+            let gst = v.total / 7.6667;
+            const win = window.open('', '_blank', 'width=300,height=400');
+            
+            let html = `<html><head><style>
+                @media print { @page { size: 80mm auto; margin: 0; } body { width: 72mm; } }
+                body { font-family: monospace; font-size: 12px; padding: 4mm 2mm; line-height: 1.2; }
+                .centro { text-align: center; } .derecha { text-align: right; } .negrita { font-weight: bold; }
+                .separador { border-top: 1px dashed #000; margin: 5px 0; }
+                .fila { display: flex; justify-content: space-between; }
+            </style></head><body>
+                <div class="centro"><span style="font-size:14px;" class="negrita">KIWI BITES CAFE</span><br><strong>GST Reg No: 12-345-678</strong><br><span class="negrita">DUPLICATE TAX INVOICE</span></div>
+                <div class="separador"></div>
+                <div><strong>Date:</strong> ${v.fecha} ${v.hora}<br><strong>Buzzer/Ref:</strong> ${v.cliente}</div>
+                <div class="separador"></div>`;
+            
+            v.articulos.forEach(i => { html += `<div class="fila"><span>${i.cantidad}x ${i.nombre}</span><span>$${(i.precio * i.cantidad).toFixed(2)}</span></div>`; });
+            html += `<div class="separador"></div><div class="derecha">`;
+            if (v.descuento > 0) html += `<div>Discount: -$${parseFloat(v.descuento).toFixed(2)}</div>`;
+            html += `<div>TOTAL: <span class="negrita">$${v.total}</span></div><div>GST (15%): $${gst.toFixed(2)}</div></div>
+                <div class="separador"></div><div class="centro negrita" style="margin-top:5px;">Thank you! / Ngā mihi nui</div></body></html>`;
+
+            win.document.write(html);
+            win.document.close();
+            setTimeout(() => { win.print(); win.close(); }, 250);
+        }
+
+        function cerrarPanelVentas() { document.getElementById('modalVentas').style.display = 'none'; }
+
         /* SISTEMA DE IMPRESIÓN SEPARADO */
         function ejecutarImpresionEspecial(tipo) {
             if (carrito.length === 0) return alert("Please add products first.");
@@ -741,6 +862,11 @@
                 textoPreviewDebug += `================================`;
             }
             document.getElementById('pantaya-debug-ticket').innerText = textoPreviewDebug;
+
+            // REGISTRO AUTOMÁTICO REQUERIDO AL PRESIONAR ONLY KITCHEN
+            if (tipo === 'cocina') {
+                registrarVentaInmediata(mesaRef, totalFinal, carrito, descuentoActual);
+            }
 
             // Ventana de Impresión Física segura con márgenes corregidos
             const ventanaImpresion = window.open('', '_blank', 'width=300,height=400');
@@ -818,7 +944,8 @@
             setTimeout(() => {
                 ventanaImpresion.print();
                 ventanaImpresion.close();
-                if (tipo === 'invoice' && typeof limpiarCarrito === 'function') { limpiarCarrito(); }
+                // Ambos flujos ahora limpian el carrito automáticamente para agilizar el POS
+                if (typeof limpiarCarrito === 'function') { limpiarCarrito(); }
             }, 250);
         }
 
