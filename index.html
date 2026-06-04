@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NZ Restaurant POS - Cloud Edition</title>
+    <title>Aula's Kitchen - PaoNET</title>
     <style>
         :root {
             --bg-principal: #f8f9fa;
@@ -268,7 +268,7 @@
         <div class="ticket-section">
             <div class="ticket-header">
                 <h2>📋 Current Order</h2>
-                <input type="text" id="cliente" class="input-cliente" placeholder="Buzzer No. / Customer Name...">
+                <input type="text" id="cliente" class="input-cliente" placeholder="Buzzer No.">
             </div>
 
             <div class="ticket-items" id="lista-articulos-pantalla"></div>
@@ -783,7 +783,7 @@
             ventaSeleccionada = v;
             let gst = v.total / 7.6667;
             
-            let txt = `TAX INVOICE\nKIWI BITES CAFE (GST Reg)\n`;
+            let txt = `TAX INVOICE\nAULA'S KITCHEN (GST Reg)\n`;
             txt += `Date: ${v.fecha} ${v.hora}\nRef: ${v.cliente}\n--------------------------------\n`;
             v.articulos.forEach(i => { txt += `${i.cantidad}x ${i.nombre} -> $${(i.precio * i.cantidad).toFixed(2)}\n`; });
             txt += `--------------------------------\n`;
@@ -878,11 +878,11 @@
                             @page { size: 80mm auto !important; orientation: portrait !important; margin: 0 !important; }
                             html, body { margin: 0 !important; padding: 0 !important; width: 72mm !important; }
                         }
-                        body { margin: 0; padding: 4mm 2mm 30mm 2mm; width: 72mm; font-family: monospace; font-size: 12px; color: #000; line-height: 1.2; }
+                        body { margin: 0; padding: 4mm 2mm 30mm 2mm; width: 72mm; font-family: monospace; font-size: 18px; color: #000; line-height: 1.2; }
                         .centro { text-align: center; }
                         .derecha { text-align: right; }
                         .negrita { font-weight: bold; }
-                        .titulo { font-size: 14px; font-weight: bold; text-transform: uppercase; }
+                        .titulo { font-size: 20px; font-weight: bold; text-transform: uppercase; }
                         .separador { border-top: 1px dashed #000; margin: 5px 0; }
                         .fila { display: flex; justify-content: space-between; }
                     </style>
@@ -893,7 +893,7 @@
             if (tipo === 'cocina') {
                 codigoContenidoHTML += `
                     <div class="centro">
-                        <span class="titulo">*** KITCHEN ORDER ***</span><br>
+                        <span class="titulo"> KITCHEN ORDER </span><br>
                         <span>${fechaHoraStr}</span>
                     </div>
                     <div style="margin-top: 8px;">
@@ -909,8 +909,8 @@
             if (tipo === 'invoice') {
                 codigoContenidoHTML += `
                     <div class="centro">
-                        <span class="titulo">KIWI BITES CAFE</span><br>
-                        <strong>GST Reg No: 12-345-678</strong><br>
+                        <span class="titulo">AULA'S KITCHEN</span><br>
+                        <strong>GST Reg No: 129-509-821</strong><br>
                         <span class="negrita" style="display:inline-block; margin-top:3px;">TAX INVOICE</span>
                     </div>
                     <div class="separador"></div>
