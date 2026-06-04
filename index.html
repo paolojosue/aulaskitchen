@@ -73,6 +73,8 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .btn-categoria:hover { background: var(--bg-principal); }
@@ -303,7 +305,7 @@
                     <!-- SUBPANEL 1: VISTA PREVIA INVOICE -->
                     <div id="tab-panel-invoice" class="tab-panel activo" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; height: 40vh;">
                         <pre id="visor-invoice-texto" style="background: white; border: 1px solid var(--borde); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 11px; white-space: pre-wrap; margin: 0; flex: 1; overflow-y: auto; color: #2d3748;">Select an order from the left list...</pre>
-                        <button id="btn-reimprimir-historial" disabled class="btn-cobrar" style="background: #41a06e; margin-top: 10px; font-size: 14px; padding: 10px;" onclick="reimprimirInvoiceSeleccionado()">🖨 nighttime Reprint</button>
+                        <button id="btn-reimprimir-historial" disabled class="btn-cobrar" style="background: #41a06e; margin-top: 10px; font-size: 14px; padding: 10px;" onclick="reimprimirInvoiceSeleccionado()">🖨️ Reprint Invoice</button>
                     </div>
 
                     <!-- SUBPANEL 2: REPORTE DE CANTIDADES VENDIDAS POR COMIDA -->
@@ -843,9 +845,9 @@
 
             document.getElementById('lbl-total-acumulado').innerText = `Total: $${sumaTotalAcumulada.toFixed(2)}`;
 
-            // 3. Convertir el mapa a un array ordenado de Mayor a Menor cantidad vendida
+            // 3. Convertir el mapa a un array ordenado (Corregido 'en' por 'in' para evitar el congelamiento)
             let listaOrdenadaReporte = [];
-            for (let producto en mapaComidasReporte) {
+            for (let producto in mapaComidasReporte) {
                 listaOrdenadaReporte.push({
                     nombre: producto,
                     cantidad: mapaComidasReporte[producto].cantidad,
@@ -869,7 +871,7 @@
         }
 
         function verDetalleInvoiceHistorial(id) {
-            cambiarTabHistorial('invoice'); // Cambia automáticamente a la pestaña de factura para ver el detalle
+            cambiarTabHistorial('invoice'); 
             const v = historialVentas.find(x => x.id === id);
             if (!v) return;
 
@@ -888,37 +890,23 @@
             document.getElementById('btn-reimprimir-historial').disabled = false;
         }
 
-        function reimprimirInvoiceSeleccionado() {
-            if (!ventaSeleccionada) return;
-            const v = ventaSeleccionada;
-            let gst = v.total / 7.6667;
-            let fechaAMostrar = v.fechaTxt ? v.fechaTxt : v.fecha;
-            const win = window.open('', '_blank', 'width=300,height=400');
-            
-            let html = `<html><head><style>
-                @media print { @page { size: 80mm auto; margin: 0; } body { width: 72mm; } }
-                body { font-family: monospace; font-size: 12px; padding: 4mm 2mm; line-height: 1.2; }
-                .centro { text-align: center; } .derecha { text-align: right; } .negrita { font-weight: bold; }
-                .separador { border-top: 1px dashed #000; margin: 5px 0; }
-                .fila { display: flex; justify-content: space-between; }
-            </style></head><body>
-                <div class="centro"><span style="font-size:14px;" class="negrita">KIWI BITES CAFE</span><br><strong>GST Reg No: 12-345-678</strong><br><span class="negrita">DUPLICATE TAX INVOICE</span></div>
-                <div class="separador"></div>
-                <div><strong>Date:</strong> ${fechaAMostrar} ${v.hora}<br><strong>Buzzer/Ref:</strong> ${v.cliente}</div>
-                <div class="separador"></div>`;
-            
-            v.articulos.forEach(i => { html += `<div class="fila"><span>${i.cantidad}x ${i.nombre}</span><span>$${(i.precio * i.cantidad).toFixed(2)}</span></div>`; });
-            html += `<div class="separador"></div><div class="derecha">`;
-            if (v.descuento > 0) html += `<div>Discount: -$${parseFloat(v.descuento).toFixed(2)}</div>`;
-            html += `<div>TOTAL: <span class="negrita">$${v.total}</span></div><div>GST (15%): $${gst.toFixed(2)}</div></div>
-                <div class="separador"></div><div class="centro negrita" style="margin-top:5px;">Thank you! / Ngā mihi nui</div></body></html>`;
-
-            win.document.write(html);
-            win.document.close();
-            setTimeout(() => { win.print(); win.close(); }, 250);
+        function abrirPanelAdmin() { document.getElementById('modalAdmin').style.display = 'flex'; renderizarTablaAdmin(); }
+        function cerrarPanelAdmin() { document.getElementById('modalAdmin').style.display = 'none'; renderizarCategorias(); renderizarMenu(); }
+        function renderizarTablaAdmin() {
+            const tabla = document.getElementById('tabla-items-cuerpo'); tabla.innerHTML = '';
+            menu.forEach(item => {
+                tabla.innerHTML += `<tr><td>${item.icono}</td><td><strong>${item.nombre}</strong></td><td>${item.categoria}</td><td>$${parseFloat(item.precio).toFixed(2)}</td><td><button class="btn-borrar-item" onclick="eliminarItemMenu(${item.id})">❌ Delete</button></td></tr>`;
+            });
         }
-
-        function cerrarPanelVentas() { document.getElementById('modalVentas').style.display = 'none'; }
+        function guardarNuevoItem() {
+            const nombre = document.getElementById('add-nombre').value; const precio = parseFloat(document.getElementById('add-precio').value);
+            const icono = document.getElementById('add-icono').value || "🍽️"; const categoria = document.getElementById('add-categoria').value.toUpperCase() || "EXTRAS";
+            if(!nombre || isNaN(precio)) return;
+            menu.push({ id: Date.now(), nombre, precio, icono, categoria });
+            guardarMenuEnMemoria(); renderizarTablaAdmin();
+            document.getElementById('add-nombre').value = ''; document.getElementById('add-precio').value = '';
+        }
+        function eliminarItemMenu(id) { if(confirm("Delete?")) { menu = menu.filter(p => p.id !== id); guardarMenuEnMemoria(); renderizarTablaAdmin(); } }
 
         function ejecutarImpresionEspecial(tipo) {
             if (carrito.length === 0) return alert("Please add products first.");
@@ -1033,24 +1021,37 @@
             }, 250);
         }
 
-        /* ADMIN CONTROLS */
-        function abrirPanelAdmin() { document.getElementById('modalAdmin').style.display = 'flex'; renderizarTablaAdmin(); }
-        function cerrarPanelAdmin() { document.getElementById('modalAdmin').style.display = 'none'; renderizarCategorias(); renderizarMenu(); }
-        function renderizarTablaAdmin() {
-            const tabla = document.getElementById('tabla-items-cuerpo'); tabla.innerHTML = '';
-            menu.forEach(item => {
-                tabla.innerHTML += `<tr><td>${item.icono}</td><td><strong>${item.nombre}</strong></td><td>${item.categoria}</td><td>$${parseFloat(item.precio).toFixed(2)}</td><td><button class="btn-borrar-item" onclick="eliminarItemMenu(${item.id})">❌ Delete</button></td></tr>`;
-            });
+        function reimprimirInvoiceSeleccionado() {
+            if (!ventaSeleccionada) return;
+            const v = ventaSeleccionada;
+            let gst = v.total / 7.6667;
+            let fechaAMostrar = v.fechaTxt ? v.fechaTxt : v.fecha;
+            const win = window.open('', '_blank', 'width=300,height=400');
+            
+            let html = `<html><head><style>
+                @media print { @page { size: 80mm auto; margin: 0; } body { width: 72mm; } }
+                body { font-family: monospace; font-size: 12px; padding: 4mm 2mm; line-height: 1.2; }
+                .centro { text-align: center; } .derecha { text-align: right; } .negrita { font-weight: bold; }
+                .separador { border-top: 1px dashed #000; margin: 5px 0; }
+                .fila { display: flex; justify-content: space-between; }
+            </style></head><body>
+                <div class="centro"><span style="font-size:14px;" class="negrita">KIWI BITES CAFE</span><br><strong>GST Reg No: 12-345-678</strong><br><span class="negrita">DUPLICATE TAX INVOICE</span></div>
+                <div class="separador"></div>
+                <div><strong>Date:</strong> ${fechaAMostrar} ${v.hora}<br><strong>Buzzer/Ref:</strong> ${v.cliente}</div>
+                <div class="separador"></div>`;
+            
+            v.articulos.forEach(i => { html += `<div class="fila"><span>${i.cantidad}x ${i.nombre}</span><span>$${(i.precio * i.cantidad).toFixed(2)}</span></div>`; });
+            html += `<div class="separador"></div><div class="derecha">`;
+            if (v.descuento > 0) html += `<div>Discount: -$${parseFloat(v.descuento).toFixed(2)}</div>`;
+            html += `<div>TOTAL: <span class="negrita">$${v.total}</span></div><div>GST (15%): $${gst.toFixed(2)}</div></div>
+                <div class="separador"></div><div class="centro negrita" style="margin-top:5px;">Thank you! / Ngā mihi nui</div></body></html>`;
+
+            win.document.write(html);
+            win.document.close();
+            setTimeout(() => { win.print(); win.close(); }, 250);
         }
-        function guardarNuevoItem() {
-            const nombre = document.getElementById('add-nombre').value; const precio = parseFloat(document.getElementById('add-precio').value);
-            const icono = document.getElementById('add-icono').value || "🍽️"; const categoria = document.getElementById('add-categoria').value.toUpperCase() || "EXTRAS";
-            if(!nombre || isNaN(precio)) return;
-            menu.push({ id: Date.now(), nombre, precio, icono, categoria });
-            guardarMenuEnMemoria(); renderizarTablaAdmin();
-            document.getElementById('add-nombre').value = ''; document.getElementById('add-precio').value = '';
-        }
-        function eliminarItemMenu(id) { if(confirm("Delete?")) { menu = menu.filter(p => p.id !== id); guardarMenuEnMemoria(); renderizarTablaAdmin(); } }
+
+        function cerrarPanelVentas() { document.getElementById('modalVentas').style.display = 'none'; }
 
         /* VIRTUAL KEYBOARD CONTROLS */
         let inputActivoActual = null;
@@ -1065,14 +1066,15 @@
         });
 
         /* CORE INITIALIZATION */
-        if (!localStorage.getItem('pos_menu_v3_forzado')) {
-            localStorage.clear(); 
+        if (!localStorage.getItem('pos_menu_v4_forzado')) {
+            // Aseguramos una estructura limpia para evitar fallos de cacheo
             menu = platosBase;
             localStorage.setItem('pos_menu_data', JSON.stringify(platosBase));
-            localStorage.setItem('pos_menu_v3_forzado', 'true');
+            localStorage.setItem('pos_menu_v4_forzado', 'true');
+        } else {
+            menu = JSON.parse(localStorage.getItem('pos_menu_data')) || platosBase;
         }
 
-        menu = JSON.parse(localStorage.getItem('pos_menu_data')) || platosBase;
         categoriasReales = [...new Set(menu.map(p => p.categoria))];
         categoriaSeleccionada = categoriasReales[0] || "STUFFED PITA BREAD";
 
