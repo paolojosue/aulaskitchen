@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NZ Restaurant POS - Cloud Edition</title>
+    <title>AULA'S KITCHEN - REVINET</title>
     <style>
         :root {
             --bg-principal: #f8f9fa;
@@ -107,11 +107,11 @@
         .tarjeta-producto:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: var(--primario); }
         
         .tarjeta-producto .emoji-icono {
-            font-size: 35px; margin-bottom: 12px; background: #fdf2fe; border-radius: 50%;
+            font-size: 30px; margin-bottom: 12px; background: #fdf2fe; border-radius: 50%;
             width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;
         }
 
-        .tarjeta-producto .nombre { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+        .tarjeta-producto .nombre { font-weight: 700; font-size: 22px; margin-bottom: 8px; }
         .tarjeta-producto .precio { font-weight: 800; color: var(--primario); font-size: 20px; }
 
         /* 3. TICKET SECCIÓN */
@@ -879,7 +879,7 @@
             let gst = v.total / 7.6667;
             let fechaAMostrar = v.fechaTxt ? v.fechaTxt : v.fecha;
             
-            let txt = `TAX INVOICE\nKIWI BITES CAFE (GST Reg)\n`;
+            let txt = `TAX INVOICE\nAULA'S KITCHEN (GST Reg)\n`;
             txt += `Date: ${fechaAMostrar} ${v.hora}\nRef: ${v.cliente}\n--------------------------------\n`;
             v.articulos.forEach(i => { txt += `${i.cantidad}x ${i.nombre} -> $${(i.precio * i.cantidad).toFixed(2)}\n`; });
             txt += `--------------------------------\n`;
@@ -937,7 +937,7 @@
                 textoPreviewDebug += `--------------------------------\n`;
             } else if (tipo === 'invoice') {
                 textoPreviewDebug += `[START CUSTOMER INVOICE]\n`;
-                textoPreviewDebug += `KIWI BITES CAFE (GST Reg)\n`;
+                textoPreviewDebug += `AULA'S KITCHEN (GST Reg)\n`;
                 textoPreviewDebug += `DATE: ${fechaHoraStr} | REF: ${mesaRef}\n`;
                 textoPreviewDebug += `--------------------------------\n`;
                 carrito.forEach(item => { textoPreviewDebug += `${item.cantidad}x ${item.nombre} -> $${(item.precio * item.cantidad).toFixed(2)}\n`; });
@@ -971,22 +971,22 @@
             if (tipo === 'cocina') {
                 codigoContenidoHTML += `
                     <div class="centro">
-                        <span class="titulo">*** KITCHEN ORDER ***</span><br>
+                        <span class="titulo"> KITCHEN ORDER </span><br>
                         <span>${fechaHoraStr}</span>
                     </div>
                     <div style="margin-top: 8px;"><strong>BUZZER/REF:</strong> ${mesaRef.toUpperCase()}<br></div>
                     <div class="separador"></div>
                     <div class="negrita">
                 `;
-                carrito.forEach(item => { codigoContenidoHTML += `<div style="padding: 2px 0;">[ ] ${item.cantidad} x ${item.nombre}</div>`; });
+                carrito.forEach(item => { codigoContenidoHTML += `<div style="padding: 2px 0;">${item.cantidad} ${item.nombre}</div>`; });
                 codigoContenidoHTML += `</div><div class="separador"></div>`;
             }
 
             if (tipo === 'invoice') {
                 codigoContenidoHTML += `
                     <div class="centro">
-                        <span class="titulo">KIWI BITES CAFE</span><br>
-                        <strong>GST Reg No: 12-345-678</strong><br>
+                        <span class="titulo">AULA'S KITCHEN</span><br>
+                        <strong>GST Reg No: 129-509-821</strong><br>
                         <span class="negrita" style="display:inline-block; margin-top:3px;">TAX INVOICE</span>
                     </div>
                     <div class="separador"></div>
@@ -1035,7 +1035,7 @@
                 .separador { border-top: 1px dashed #000; margin: 5px 0; }
                 .fila { display: flex; justify-content: space-between; }
             </style></head><body>
-                <div class="centro"><span style="font-size:14px;" class="negrita">KIWI BITES CAFE</span><br><strong>GST Reg No: 12-345-678</strong><br><span class="negrita">DUPLICATE TAX INVOICE</span></div>
+                <div class="centro"><span style="font-size:14px;" class="negrita">AULA'S KITCHEN</span><br><strong>GST Reg No: 129-509-821</strong><br><span class="negrita">DUPLICATE TAX INVOICE</span></div>
                 <div class="separador"></div>
                 <div><strong>Date:</strong> ${fechaAMostrar} ${v.hora}<br><strong>Buzzer/Ref:</strong> ${v.cliente}</div>
                 <div class="separador"></div>`;
